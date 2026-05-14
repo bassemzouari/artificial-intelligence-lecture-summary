@@ -5,6 +5,8 @@ Artificial Intelligence course covering intelligent agents,
 search algorithms, heuristics, optimization, adversarial search,
 and core AI methodologies.
 
+> Language: German 🇩🇪
+
 The project focuses on structured technical documentation,
 problem-solving strategies, rational agents, informed search,
 and modern artificial intelligence concepts.
