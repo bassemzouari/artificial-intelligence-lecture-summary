@@ -1,0 +1,470 @@
+\section{Local Search and Adversarial Search}
+\fatsf{Das Problem:}\\
+Bisher:
+\begin{itemize}
+    \item Methoden, die den Suchraum systematisch durchsuchen, möglicherweise unter Verwendung von gezieltem \fatsf{Pruning} (z.B. A*)
+    \item \enquote{Systematische Suchverfahren gehen \fatsf{alle Möglichkeiten geordnet durch} - und \fatsf{Pruning hilft, die schlechten Äste frühzeitig abzusägen}}
+\end{itemize}
+Aber:
+\begin{itemize}
+    \item Was passiert, wenn der Suchraum \fatsf{viel größer} wird?
+    \item Was, wenn \fatsf{der Pfad nicht das Ziel ist}?
+\end{itemize}
+\subsection{Optimierungsprobleme}
+Ein \fatsf{Optimierungsproblem} ist ein Problem, bei dem \fatsf{alle Zustände/Knoten als Lösung} betrachtet werden können (in unterschiedlichem Maße), aber das Ziel darin besteht, den Zustand zu finden, der eine Lösung nach einer \fatsf{Zielfunktion optimiert} (minimiert, maximiert, etc.). Das bedeutet, dass wir nach dem \fatsf{besten Zustand} suchen; es gibt keinen expliziten \fatsf{Zielzustand} und auch keinen \fatsf{Pfad (Kosten)}
+\subsubsection*{Optimierungsproblem im Detail}
+\begin{itemize}
+    \item Eine \fatsf{Zielfunktion} (auch \fatsf{Evaluierungsfunktion}) gibt an, wie \enquote{gut} ein Zustand ist, und vergleicht ihn mit anderen Zustände. Der Wert der Zielfunktion kann je nach Problem entweder \fatsf{minimiert} oder \fatsf{maximiert} werden
+\end{itemize}
+\fatsf{Beispiel:}\\
+Die \fatsf{Darwinistische Evolution} und das Überleben des Stärkeren können als \fatsf{Optimierungsprozess} betrachtet werden. Hier geht es nicht um ein einzelnes Ziel (z.B. den besten Individuum in einer Generation zu finden), sondern um die Evolution und Selektion im Laufe der Zeit
+\clearpage
+\subsubsection*{Wichtige Begriffe in Optimierungsproblemen}
+\begin{enumerate}
+    \item \fatsf{Konvergenz:} Dieser Begriff beschreibt die Eigenschaft einer Sequenz von Funktionswerten, die sich immer mehr einem bestimmten \fatsf{Grenzwert} oder \fatsf{Wert} annähert. In vielen Optimierungsprozessen strebt die Lösung nach einem optimalen Zustand
+    \item \fatsf{Globales Optimum:} Ein \fatsf{globales Optimum} ist das Extremum (Minimum oder Maximum) der Zielfunktion für den gesamten Suchraum. Das bedeutet, es ist der bestmögliche Zustand, der über alle möglichen Zustände hinweg den besten Wert liefert
+    \item \fatsf{Lokales Optimum:} Ein \fatsf{lokales Optimum} ist das Extremum der Zielfunktion für einen bestimmten Bereich des Suchraums. Zum Beispiel könnte es in einem Minimierungsproblem eine \enquote{Senke} in einem \fatsf{Talsystem} darstellen. Es ist der beste Zustand in diesem spezifischen Bereich, aber nicht unbedingt der beste Zustand im gesamten Suchraum 
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Local Search_Images/Key Terminologies.jpeg}
+\end{figure}
+\subsection{Optimierungsprobleme und Lokale Suchalgorithmen}
+\fatsf{Optimierungsprobleme ohne Pfadabhängigkeit}\\
+In vielen \fatsf{Optimierungsproblemen} sind die Reihenfolge der Aktionen und die damit verbundenen Kosten irrelevant.\\
+Das Ziel besteht darin, einen Zustand zu finden, der alle \fatsf{Zielbedingungen} erfüllt - nicht den Pfad, um dorthin zu gelangen\\
+\fatsf{Vorteile von Optimierungsansätzen:}
+\begin{itemize}
+    \item Benötigt nur eine \fatsf{geringe und konstante Menge an Speicher}
+    \item Kann eine \fatsf{gute Lösung in sehr großen Suchräumen} finden, in denen systematische Methoden (z.B. A*) scheitern
+\end{itemize}
+\fatsf{Nachteile:}
+\begin{itemize}
+    \item Keine Garantie für \fatsf{Vollständigkeit} oder \fatsf{Optimallösung}
+\end{itemize}
+
+\subsection{Lokale Suchalgorithmen (Iterative Vierbesserungsmethoden)}
+Lokale Suchalgorithmen sind Verfahren zur \fatsf{Lösung von Optimierungsproblemen}, bei denen \fatsf{nicht der gesamt Suchraum durchsucht wird}, sondern:
+\begin{itemize}
+    \item Es wird \fatsf{ein einzelner aktueller Zustand} betrachtet
+    \item Man prüft dessen \fatsf{Nachbarn} (also ähnliche Zustände)
+    \item Man wählt den \fatsf{besseren} Nachbarn und geht \fatsf{nur dorthin}
+    \item Das wiederholt man \fatsf{so lange}, bis \fatsf{kein besserer Zustand} mehr gefunden wird
+\end{itemize}
+$\rightarrow$ Es geht also \fatsf{iterativ} und \fatsf{lokal} durch den Suchraum - immer nur auf Basis von kleinen Verbesserungen
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Local Search_Images/Lokale Suche.jpeg}
+\end{figure}
+\subsubsection*{Wichtige Designüberlegungen für Suchalgorithmen}
+Bei der Entwicklung eines lokalen Suchalgorithmus sind folgende Fragen entscheidend:
+\begin{itemize}
+    \item Wie wird das Problem dargestellt?
+    \item Welche Zielfunktion soll optimiert werden?
+    \item Wie wird die Qualität eines Zustands gemessen?
+    \item Was definiert einen \enquote{Nachbarn} eines Zustands?
+    \item Welche Zustände sind vom aktuellen Zustand aus erreichbar?
+    \item Wie wird ein Nachbarzustand berechnet?
+    \item Gibt es spezielle Einschränkungen, die ausgenutzt werden können?
+\end{itemize}
+\subsubsection*{Beispiele für Lokale Suche}
+\begin{enumerate}
+    \item \fatsf{Das Problem des Handlungsreisenden (Travelling Salesman Problem, TSP)}\\
+    \fatsf{Problemstellung:}
+    \begin{itemize}
+        \item Ein Handlungsreisender muss eine Reihe von Städten besuchen und dabei die kürzeste Rundreise finden
+    \end{itemize}
+    \item \fatsf{Ansatz mit lokaler Suche:}
+    \begin{itemize}
+        \item Starte mit einer \fatsf{vollständigen, aber vermutlich suboptimalen Route}
+        \item \fatsf{Verbessere iterativ} die Route durch \fatsf{paarweise Vertauschungen von Städten}
+        \item Varianten dieser Methode können in großen Probleminstanzen sehr schnell eine \fatsf{Lösung finden, die weniger als 1\% von der optimalen Lösung abweicht}
+    \end{itemize}
+    \item \fatsf{Das n-Damen-Problem (n-Queens Problem)}\\
+    \fatsf{Problemstellung:}
+    \begin{itemize}
+        \item Platziere \fatsf{n Damen} auf einem Schachbrett der Größe $n x n$, sodass \fatsf{keine Dame eine andere angreifen kann} (weder horizontal, vertikal noch diagonal)
+    \end{itemize}
+    \fatsf{Lokale Suche für das n-Damen-Problem}
+    \begin{itemize}
+        \item \fatsf{Zustände:} Eine Platzierung von n Damen in n Spalten (z.B. 256 mögliche Zustände bei n = 4)
+        \item \fatsf{Nachbarschaftsoperationen:} Eine Dame in ihrer Spalte verschieben
+        \item \fatsf{Zielfunktion:} h(n) = Anzahl der Konflikte zwischen Damen
+        \item \fatsf{Zieltest:} Eine Lösung ist gefunden, wenn h(G) = 0 (keine Konflikte mehr)
+    \end{itemize}
+    \fatsf{Warum lokale Suche?}
+    \begin{itemize}
+        \item In jedem Schritt werden \fatsf{nur lokale Änderungen vorgenommen}
+        \item Es wird sichergestellt, dass eine \fatsf{Folge lokaler Änderungen alle möglichen Zustände erreichen kann}
+    \end{itemize}
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Local Search_Images/n-Queens Problem.jpeg}
+\end{figure}
+\subsection{Hill Climbing (Gradientenaufstieg) / Greedy Local Search}
+\fatsf{Algorithmus:}
+\begin{enumerate}
+    \item \fatsf{Generiere alle Nachbarzustände} des aktuellen Zustands
+    \item \fatsf{Wähle den Nachbarn mit der höchsten Bewertungsfunktion} (beste Heuristikwert)
+    \item Wiederhole den Vorgang, \fatsf{bis keine Verbesserung mehr möglich ist} (das heißt, bis ein Maximum erreicht wird)
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Local Search_Images/Hill-Climbing.jpeg}
+\end{figure}
+\subsubsection*{Problem: Lokale Optima}
+\fatsf{Herausforderung:}
+\begin{itemize}
+    \item Der Algorithmus \fatsf{stoppt, sobald er ein lokales Maximum erreicht}, selbst wenn dieses \fatsf{nicht das globle Optimum} ist
+    \item Hindernisse wie \fatsf{Plateaus, Grate oder Schultern} können verhindern, dass die beste Lösung gefunden wird
+    \item Dies wird oft verglichen mit: \enquote{Den Mount Everest im dichten Nebel mit Amnesie besteigen}
+\end{itemize}
+\subsubsection*{Lösungen: Varianten des Randomisierten Hill Climbing}
+\begin{enumerate}
+    \item \fatsf{Randomized Restart Hill Climbing}\\
+    \fatsf{Idee:}
+    \begin{itemize}
+        \item \fatsf{Starte den Algorithmus mehrmals mit unterschiedlichen Anfangszuständen}, um verschiedene lokale Optima zu erreichen
+        \item Durch mehrere Durchläufe steigt die Wahrscheinlichkeit, das \fatsf{globale Optimum} zu finden
+    \end{itemize}
+    \item \fatsf{Stochastic Hill Climbing}\\
+    \fatsf{Idee:}
+    \begin{itemize}
+        \item \fatsf{Wähle den nächsten Zustand zufällig}, anstatt immer den besten Nachbarn zu nehmen
+        \item \fatsf{Bessere Zustände haben eine höhere Wahrscheinlichkeit}, ausgewählt zu werden
+        \item Dies verhindert, dass der Algorithmus \fatsf{zu früh in einem lokalen Optimum stecken bleibt}
+    \end{itemize}
+\end{enumerate}
+\subsubsection*{Weitere Herausforderungen in Optimierungsproblemen}
+\fatsf{Das Ridge-Problem (Grat-Problem)}
+\begin{itemize}
+    \item Jeder Nachbarzustand scheint schlechter zu sein (bergab), obwohl ein besserer Zustand existiert
+    \item Das Problem entsteht, wenn der \fatsf{Suchraum in eine ungünstige Richtung geneigt} ist
+    \item \fatsf{Metapher:} Ein gefaltetes Blatt Papier, das in einem unpassenden Winkel gehalten wird - jeder einzelne Schritt scheint bergab zu führen, obwohl das optimale Ziel bergauf leigt
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\linewidth]{Local Search_Images/Optimization Problems.jpeg}
+\end{figure}
+\subsubsection*{Beispiel: 8-Damen-Problem}
+\fatsf{Herausforderung:}
+\begin{itemize}
+    \item Es gibt lokale Optima, bei denen \fatsf{keine Dame mehr bewegt werden kann}, ohne neue Konflikte zu erzeugen
+    \item Beispielzustand:
+    \begin{itemize}
+        \item h = 17 $\rightarrow$ Startzustand
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.3\linewidth]{Local Search_Images/h17.jpeg}
+        \end{figure}
+        \item \fatsf{Bester Nachbar:} h = 12 (Verbesserung)
+        \item \fatsf{Lokal optimales h = 1 gefunden} $\rightarrow$ Keine Bewegung verbessert den Zustand mehr
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.3\linewidth]{Local Search_Images/h1.jpeg}
+        \end{figure}
+        \item Was können Sie tun, um aus diesem lokalen Minimum herauszukommen?
+    \end{itemize}
+\end{itemize}
+\subsubsection*{Mehrdimensionale Zustandslandschaften}
+\fatsf{Suchlandschaft (State Landscape):}
+\begin{itemize}
+    \item Zustände werden als \fatsf{Positionen} dargestellt
+    \item Der \fatsf{Heuristikwert} entspricht der \fatsf{Höhe} eines Geländes (hoch = gutes Ergebnis, tief = schlechtes Ergebnis)
+\end{itemize}
+\fatsf{Herausforderung:}
+\begin{itemize}
+    \item Je \fatsf{mehr Dimensionen}, desto \fatsf{schwieriger wird die Optimierung}
+    \item \fatsf{Viele lokale Optima} erschweren Das Auffinden des globalen Optimums
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Local Search_Images/State-Landscape.jpeg}
+\end{figure}
+\subsection{Gradientenabstieg (Gradient Descent)}
+\begin{itemize}
+    \item \fatsf{Gradientenabstieg ist eine zentrale Methode der Optimierung}, insbesondere für maschinelles Lernen und neuronale Netze
+    \item Die Wahl der \fatsf{Lernrate} beeinflusst stark die Konvergenz
+    \item \fatsf{SAT-Probleme} sind grundlegend für die theoretische Informatik und gehören zu den \fatsf{NP-vollständigen Problemen}
+    \item \fatsf{Cook's Theorem} zeigt, dass SAT eine zentrale Rolle in der Komplexitätstheorie spielt
+\end{itemize}
+\subsection{Beam Search}
+\fatsf{Idee:}
+\begin{itemize}
+    \item Statt nur \fatsf{einen Zustand} zu verfolgen, werden \fatsf{k Zustände} gleichzeitig gespeichert (\fatsf{k} = Strahlbreite)
+\end{itemize}
+\fatsf{Algorithmus:}
+\begin{enumerate}
+    \item Starte mit k zufällig generierten Zuständen
+    \item Generiere alle Nachfolger aller k Zustände
+    \item Wähle die k besten Nachfolger aus der gesamten Liste aus
+    \item Wiederhole diesen Prozess, bis eine Lösung gefunden wird
+\end{enumerate}
+\fatsf{Vergleich:}
+\begin{itemize}
+    \item\fatsf{Hill-Climbing:} Speichert nur einen Zustand
+    \item \fatsf{Beam Search:} Speichert mehrere Zustände (z.B. k = 2)
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Local Search_Images/Hill-Climbing-Beam Search.jpeg}
+\end{figure}
+\subsection{Simulated Annealing (Simulierte Abkühlung)}
+\fatsf{Idee:}
+\begin{itemize}
+    \item \fatsf{Kombiniert Hill-Climbing mit zufälligen Abwärtsbewegungen}, um lokale Optima zu vermeiden
+    \item \fatsf{Zulassen von \enquote{schlechten} Schritten} (Bewegung in eine schlechtere Lösung), aber mit abnehmender Wahrscheinlichkeit über die Zeit
+    \item Ähnelt einer \fatsf{Kombination aus Hill-Climbing und Random Walk}
+\end{itemize}
+\fatsf{Schlüsselelement: Temperatur (Hyperparameter)}
+\begin{itemize}
+    \item Die Temperatur T kontrolliert, wie oft \enquote{schlechte Züge} akzeptiert werden
+    \item Die Temperatur \fatsf{nimmt exponentiell ab}, sodass mit der Zeit immer seltener schlechte Züge gemacht werden
+\end{itemize}
+\fatsf{Effektivität:}\\
+Falls die Temperatur langsam genug gesenkt wird, \fatsf{konvergiert das Verfahren zum globalen Optimum}\\
+\fatsf{Problem:} Kann extrem lange dauern
+\subsection{Beispiel für Simulated Annealing}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{Local Search_Images/Simulated Annealing.jpeg}
+\end{figure}
+\subsubsection*{Fazit: Simulated Annealing}
+\fatsf{Grundprinzip:}
+\begin{itemize}
+    \item Simulated Annealing ist \fatsf{eine lokale Suche mit bewusst eingebautem Rauschen} das über die Zeit abnimmt
+    \item Modelliert das Verhalten von \fatsf{physikalischen Systemen}, z.B. das Abkühlen von Metallen
+\end{itemize}
+\fatsf{Wissenschaftlicher Hintergrund:}
+\begin{itemize}
+    \item Verwendet Prinzipien aus der \fatsf{statistischen Physik} (Simulation von Gassystemen mit $10^{23}$ Teilchen)
+    \item Entwickelt von \fatsf{Kirkpatrick et al. (1984)}
+\end{itemize}
+\fatsf{Allgemeine Anwendbarkeit:}
+\begin{itemize}
+    \item Kann genutzt werden, um komplexe Wahrscheinlichkeitsverteilungen zu simulieren
+    \item Für \fatsf{Optimierung} wählt man eine geschickte Wahrscheinlichkeitsverteilung, die bei niedriger Temperatur auf das Optimum fokussiert ist
+\end{itemize}
+\subsection{Adversarial Search \& Spiele als KI-Herausforderung}
+\subsubsection*{Warum sind Spiele für die KI-Forschung interessant?}
+Spiele dienen als \fatsf{Herausforderung für KI-Algorithmen} und helfen Forschern, robuste maschinelle Lernmodelle zu entwickeln\\
+\fatsf{Zitat:}\\
+\enquote{Obwohl es interessant ist, dass DQN Spiele auf menschlichem Niveau spielt, könnte es diese Spiele auf eine ganz andere Weisen lernen als Menschen}\\
+\fatsf{Warum Spiele?}
+\begin{itemize}
+    \item \fatsf{Messbarkeit:} Spiele ermöglichen es, den Fortschritt von KI-Algorithmen quantifizierbar zu verfolgen
+    \item \fatsf{Sichere Trainingsumgebung:} Spiele sind simulationsfreundlich und haben geringes Risiko
+    \item \fatsf{Öffentliches Interesse:} Größe KI-Meilensteine (z.B. AlphaGo gegen Lee Sedol) wecken Aufmerksamkeit und treiben Fotschritt voran
+\end{itemize}
+\subsubsection*{Adverarial Search - Was ist das?}
+\fatsf{Definition:}\\
+Adverasarial Search beschreibt Suchprobleme, bei denen \fatsf{mehrere Spieler mit entgegengesetzten Zielen} agieren\\
+\fatsf{Eigenschaften:}
+\begin{itemize}
+    \item Spiele werden als \fatsf{Spielbäume} dargestellt
+    \item Jeder Spieler muss die \fatsf{Aktion des Gegners antizipieren}
+    \item Oft gibt es eine \fatsf{Zeitbegrenzung}, sodass \fatsf{keine vollständige Suche} möglich ist
+\end{itemize}
+\fatsf{Vergleich: Suchprobleme vs. Spiele}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{lll}
+        \toprule
+        Kriterium & Klassische Suche & Adversarial Search\\
+        \midrule
+        Gegner & Kein Gegner & Gegner mit eigenem Ziel\\
+        Suchbaum & Agent sucht besten Weg zum Ziel & Spieler wählt besten Zug unter Berücksichtigung des Gegners\\
+        Ziel & Fester Endzustand & Maximierung der eigenen Gewinnchance\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+\subsubsection*{Adversarial Search: Wichtige Begriffe}
+\begin{itemize}
+    \item \fatsf{Perfekte vs. Imperfekte Information}
+    \begin{itemize}
+        \item Perfekte Information: Alle Spielzustände sind bekannt (z.B. Schach)
+        \item Imperfekte Information: Teile des Spiels sind verborgen (z.B. Poker)
+    \end{itemize}
+    \item \fatsf{Deterministisch vs. Nicht-deterministisch}
+    \begin{itemize}
+        \item \fatsf{Deterministisch:} Die nächste Spielposition ist vollständig vorhersehbar (z.B. Schach)
+        \item \fatsf{Nicht-deterministisch:} Ergebnisse haben Wahrscheinlichkeiten (z.B. Würfelspiele)
+    \end{itemize}
+    \item \fatsf{Zero-Sum-Spiele}
+    \begin{itemize}
+        \item Wenn ein Spieler gewinnt, verliert der andere exakt denselben Betrag
+    \end{itemize}
+\end{itemize}
+\subsubsection*{Formalisierung eines Spiels als Suchproblem}
+Ein Spiel kann als Suchproblem beschrieben werden mit:
+\begin{enumerate}
+    \item \fatsf{Initialzustand} $\rightarrow$ Anfangsposition des Spiels
+    \item \fatsf{Spieler} $\rightarrow$ Gibt an, welcher Spieler am Zug ist
+    \item \fatsf{Aktionen} $\rightarrow$ Alle möglichen legalen Züge eines Spielers
+    \item \fatsf{Ergebnis} $\rightarrow$ Der resultierende Zustand nach einer Aktion
+    \item \fatsf{Terminaltest} $\rightarrow$ Prüft, ob das Spiel endet
+    \item \fatsf{Nutzenfunktion} $\rightarrow$ Gibt den Wert eines Endzustands für einen Spieler an
+\end{enumerate}
+\subsubsection*{Spielbäume \& ihre Struktur}
+\begin{itemize}
+    \item Ähnlich zu Suchbäumen, aber \fatsf{spielerspezifische Ebenen}
+    \item Wurzelknoten = aktueller Spieler am Zug
+    \item Blattknoten = Endzustände mit definiertem Nutzenwert
+\end{itemize}
+\fatsf{Beispiel: Tic-Tac-Toe}
+\begin{itemize}
+    \item Ein Tic-Tac-Toe Spielbaum hat \fatsf{weniger als 9! = 362880 Endzustände}
+    \item Im Vergleich dazu: \fatsf{Schach hat $\approx$ $10^{40}$ mögliche Endzustände!}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Local Search_Images/Tic-Tac-Toe.jpeg}
+\end{figure}
+\subsubsection*{Herausforderungen bei der Adversial Search}
+\begin{enumerate}
+    \item \fatsf{Unvorhersehbarer Gegner}
+    \begin{itemize}
+        \item Der Algorithmus muss für \fatsf{jede mögliche Antwort des Gegners} eine Reaktion bereithalten
+    \end{itemize}
+    \item \fatsf{Zeitbegrenzung}
+    \begin{itemize}
+        \item In vielen Spielen kann \fatsf{nicht der gesamte Spielbaum durchsucht} werden $\rightarrow$ \fatsf{Heuristik \& Approximationen} nötig
+    \end{itemize}
+    \item \fatsf{Unterschied zwischen Spielen \& echten Problemen}
+    \begin{table}[H]
+        \centering
+        \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+        \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{lll}
+            \toprule
+            Kategorie & Spiele & Reale Probleme\\
+            \midrule
+            Deterministisch? & Meistens ja & Oft nicht\\
+            Gegenspieler? & Meistens nur einer & Oft mehrere Akteure\\
+            Zugbasiert? & Ja & Meist nicht\\
+            Ziel? & Gewinnen & Oft eine \fatsf{optimale Strategie}\\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+\end{enumerate}
+\subsection{Minimax \& Alpha-Beta Pruning}
+\subsubsection*{Minimax-Algorithmus}
+\fatsf{Grundidee}\\
+Minimax nutzt \fatsf{Spielbäume}, um eine optimale Strategie für ein \fatsf{Zero-Sum-Spiel} zu finden. Dabei gibt es zwei Spielertypen:
+\begin{itemize}
+    \item \fatsf{MAX:} Versucht, den bestmöglichen Gewinn zu erzielen
+    \item \fatsf{MIN:} Versucht, den Gewinn von MAX zu minimieren
+\end{itemize}
+\fatsf{Strategie:}
+\begin{itemize}
+    \item Spieler ziehen abwechseln
+    \item MAX wählt die Aktion mit dem \fatsf{höchsten Minimax-Wert}
+    \item MIN wählt die Aktion mit dem \fatsf{niedrigsten Minimax-Wert}
+    \item \fatsf{Annahme:} Beide Spieler spielen \fatsf{optimal}
+\end{itemize}
+\fatsf{Eigenschaften des Minimax-Algorithmus}
+\begin{itemize}
+    \item \fatsf{Suchstrategie:} Tiefensuche (DFS)
+    \item \fatsf{Komplettheit:} Ja, falls der Baum endlich ist
+    \item \fatsf{Optimierung:} Optimal, wenn der Gegner optimal spielt
+    \item \fatsf{Zeitkomplexität:} O($b^{m}$) (b = Verzweigungsfaktor, m = Tiefe)
+    \item \fatsf{Raumkomplexität:} $O(bm)$ durch rekursive Berechnung
+\end{itemize}
+\fatsf{Problem:}
+\begin{itemize}
+    \item In vielen Spielen wächst der Spielbaum \fatsf{exponentiell}
+    \item Beispiel: \fatsf{Schach} (b $\approx$ 35, m $\approx$ 100) $\rightarrow$ \fatsf{viel zu groß für vollständige Suche!}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\linewidth]{Local Search_Images/Minimax Algorithm.jpeg}
+\end{figure}
+\subsubsection*{Heuristisch Bewertungsfunktion}
+Das der vollständige Minimax-Baum oft zu groß ist, wird er \fatsf{abgeschnitten} und mit einer \fatsf{Heuristik} bewertet\\
+\fatsf{Löusng:}
+\begin{itemize}
+    \item \fatsf{Begrenzte Suchtiefe} $\rightarrow$ Algorithmus sucht nur eine bestimmte Anzahl an Zügen voraus
+    \item \fatsf{Bewertungsfunktion} $\rightarrow$ Schätzt, wie vorteilhaft eine Position ist
+\end{itemize}
+\fatsf{Beispiel für eine Heuristik in Schach:}
+\begin{itemize}
+    \item \fatsf{Materialvorteil} (z.B. Dame = 9 Punkte, Turn = 5 Punkte)
+    \item \fatsf{Positionelle Faktoren} (z.B. Königsicherheit, Zentrumskontrolle)
+\end{itemize}
+\fatsf{Nachteil:}
+\begin{itemize}
+    \item Heuristiken sind nicht immer genau $\rightarrow$ \fatsf{Fehlereinschätzungen möglich!}
+\end{itemize}
+\subsubsection*{Alpha-Beta Pruning}
+\fatsf{Grundidee}\\
+Alpha-Beta Pruning \fatsf{optimiert Minimax}, indem es \fatsf{unnötige Berechnungen vermeidet} und trotzdem das gleiche optimale Ergebnis liefert\\
+\fatsf{Prinzip:}
+\begin{itemize}
+    \item \fatsf{Alpha ($\alpha$):} Bestes bisher gefundenes Ergebnis für MAX (Start -$\infty$)
+    \item \fatsf{Beta ($\beta$):} Bestes bisher gefundenes Ergebnis für MIN (Start +$\infty$)
+\end{itemize}
+\fatsf{Optimierung:}
+\begin{itemize}
+    \item Wenn \fatsf{$\alpha \geq \beta$}, dann \fatsf{wird der Teilbaum abgeschnitten (gepruned)}, da er nicht mehr relevant ist
+    \item Dadurch werden \fatsf{keine unnötigen Knoten durchsucht}
+\end{itemize}
+\subsubsection*{Alpha-Beta-Prinning - Beispielablauf}
+\begin{enumerate}
+    \item \fatsf{Start bei MAX:}
+    \begin{itemize}
+        \item Setzt $\alpha = -\infty$, $\beta = +\infty$ und übergibt diese Werte an den ersten Kindknoten
+    \end{itemize}
+    \item \fatsf{MIN-Ebene:}
+    \begin{itemize}
+        \item Bestimmt das Minimum aus den Kindknoten und aktualisiert $\beta$
+        \item Falls $\beta \leq \alpha$, wird der restliche Baum ignoriert
+    \end{itemize}
+    \item \fatsf{MAX-Ebene:}
+    \begin{itemize}
+        \item Bestimmt das Maximum aus den Kindknoten und aktualisiert $\alpha$
+        \item Falls $\alpha \geq \beta$, wird der restliche Baum ignoriert
+    \end{itemize}
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Local Search_Images/Alpha-Beta Pruning.jpeg}
+\end{figure}
+\fatsf{Ergebnis:}
+\begin{itemize}
+    \item \fatsf{Reduktion der Komplexität:}
+    \begin{itemize}
+        \item Minimax: O($b^{m}$)
+        \item Alpha-Beta-Pruning: O($b^{m/2}$) $\rightarrow$ \fatsf{Halbierung der Suchzeit!}
+    \end{itemize}
+\end{itemize}
+\fatsf{Optimierung:}
+\begin{itemize}
+    \item \fatsf{Best-First-Order:} Wenn die besten Züge zuerst geprüft werden maximiert sich der Effekt des Prunings
+\end{itemize}
+\subsubsection*{Grenzen von Alpha-Beta-Pruning}
+\fatsf{Problem:}
+\begin{itemize}
+    \item Funktioniert schlecht in \fatsf{Spielen mit hohem Verzweigungsfaktor} (z.B. Go, b $\approx$ 250)
+    \item \fatsf{Reine Suchalgorithmen reichen nicht aus}, um komplexe Spiele effizient zu meistern
+\end{itemize}
+\fatsf{Lösung: Monte-Carlo Tree Search (MCTS) \& KI-gestützte Evaluation}
+\begin{itemize}
+    \item \fatsf{AlphaGo (2016, DeepMind)} kombinierte \fatsf{Monte-Carlo-Tree-Search (MCTS) mit neuronalen Netzen}
+    \item \fatsf{Lernfähige Bewertungsfunktionen} statt statischer Heuristiken
+\end{itemize}
+\subsubsection*{Warum ist Suche in der KI so zentral?}
+\begin{itemize}
+    \item \fatsf{Viele KI-Probleme sind schwer lösbar (interactable)}
+    \item \fatsf{Suchalgorithmen sind oft die einzige Möglichkeit, komplexe Entscheidungen zu treffen}
+    \item \fatsf{Beispiele für Such-basierte KI-Anwendungen:}
+    \begin{itemize}
+        \item \fatsf{Lernen:} Optimale Strategien durch Reinforcement Learning
+        \item \fatsf{Planung:} Routenfindung für autonome Fahrzeuge
+        \item \fatsf{Sprachverarbeitung:} Parsing natürlicher Sprache
+        \item \fatsf{Bildverarbeitung:} Objekterkennung durch strukturierte Suche
+    \end{itemize}
+\end{itemize}
+\fatsf{Fazit:} Obwohl Alpha-Beta-Pruning den Minmax-Algorithmus effizienter macht, sind für \fatsf{hochkomplexe Probleme moderner KI-Techniken}´wie \fatsf{MCTS \& neuronale Netze} notwendig

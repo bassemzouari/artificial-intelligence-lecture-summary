@@ -1,0 +1,414 @@
+\section{Constraint Satisfaction Problems (CSPs)}
+\subsubsection*{Was sind CSPs?}
+Ein \fatsf{Constraint Satisfaction Problem (CSP)} ist ein Problem, das gelöst wird, indem eine \fatsf{Zuweisung von Werten zu Variablen} gefunden wird, die bestimmte \fatsf{Einschränkungen (Constraints)} erfüllt\\
+\fatsf{Bestandteile eines CSPs:}
+\begin{enumerate}
+    \item \fatsf{Variablen $X_{i}$:} Zustände des Problems (z.B. Farbe eines Landes auf einer Karte)
+    \item \fatsf{Domänen $D_{i}$:} Mögliche Werte, die den Variablen zugewiesen werden können
+    \item \fatsf{Constraints C:} Regeln, die angeben, welche Werte erlaubt sind (z.B. \enquote{Benachbarte Länder müssen unterschiedliche Farben haben})
+\end{enumerate}
+\fatsf{Lösung eines CSP:}\\
+Eine gültige Zuweisung von Werten zu allen Variablen, die \fatsf{keinen Constraint} verletzt
+\subsubsection*{Beispiele für reale CSPs}
+\fatsf{Typische Anwendungen:}
+\begin{itemize}
+    \item \fatsf{Zuweisungsprobleme:} Wer unterrichtet welche Klasse?
+    \item \fatsf{Stundenplanung:} Wann und wo wird eine Klasse angeboten?
+    \item \fatsf{Hardware-Konfiguration:} Optimale Ressourcennutzung in Rechenzentren
+    \item \fatsf{Terminplanung:} Automatische Planung von Meetings
+    \item \fatsf{Grundrissplanung:} Optimale Raumnutzung
+\end{itemize}
+\fatsf{Spezialfälle:}
+\begin{itemize}
+    \item \fatsf{Lineare Constraints:} Lassen sich mit \fatsf{linearem Programmieren} in \fatsf{polynomiealer Zeit} lösen
+    \item \fatsf{Nichtlineare Constraints:} Oft \fatsf{unentscheidbar} (keine generelle Lösungsmethode)
+\end{itemize}
+\subsubsection*{Arten der Variablenzuweisung}
+Ein CSP-Zustand wird durch eine Zuweisung von Werten zu Variablen definiert:
+\begin{enumerate}
+    \item \fatsf{Konsistente (Legale) Zuweisung:}
+    \begin{itemize}
+        \item Eine Zuweisung, die \fatsf{keine} Constraints verletzt
+    \end{itemize}
+    \item \fatsf{Komplette Zuweisung:}
+    \begin{itemize}
+        \item Jede Variable ist zugewiesen, und die Lösung bleibt konsistent
+    \end{itemize}
+    \item \fatsf{Partielle Zuweisung:}
+    \begin{itemize}
+        \item Nur einige Variablen sind zugwiesen (wird oft in Suchalgorithmen verwendet)
+    \end{itemize}
+\end{enumerate}
+\fatsf{Warum keine einfache Suche?}\\
+Da Lösungen \fatsf{durch Constraints} definiert sind, können effizientere Techniken genutzt werden als \fatsf{Standard-Suchalgorithmen}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{CSP_Images/n-Queens.jpeg}
+\end{figure}
+\subsubsection*{Constraint-Graphen}
+Ein \fatsf{Constraint-Graph} abstrahiert das Problem und macht es leichter lösbar\\
+\fatsf{Wie wird ein Constraint-Graph erstellt?}
+\begin{itemize}
+    \item \fatsf{Jede Variable} wird als \fatsf{Knoten} dargestellt
+    \item \fatsf{Jede Einschränkung} zwischen Variablen wird als \fatsf{Kante} dargestellt
+\end{itemize}
+\subsubsection*{Das Vier-Farben-Theorem}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{CSP_Images/The Four Color Map Theorem.jpeg}
+\end{figure}
+\begin{itemize}
+    \item Beweis dauerte über \fatsf{100 Jahre} und wurde erstmals mit einem Computer abgeschlossen!
+\end{itemize}
+\subsubsection*{Beispiel: Arithmetisches CSP - TWO + TWO = FOUR}
+\fatsf{Ziel:} Finde eine \fatsf{Zuweisung von Ziffern zu Buchstaben}, die die Gleichung erfüllt\\
+\fatsf{Constraints:}
+\begin{itemize}
+    \item Jede Variable repräsentiert eine Ziffer 0 - 9
+    \item Gleiche Buchstaben müssen dieselbe Ziffer haben
+    \item Unterschiedliche Buchstaben müssen unterschiedliche Ziffern haben
+    \item Addition muss korrekt sein
+\end{itemize}
+\fatsf{Technik:}
+\begin{itemize}
+    \item Nutzung von Constraint-Suchverfahren (Backtracking, Forward Checking, Arc Consistency)
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/TWO-TWO-FOUR.jpeg}
+\end{figure}
+\subsubsection*{Types of Constraints in CSPs}
+CSPs enthalten unterschiedliche \fatsf{Arten von Constraints}, die bestimmen, welche Werte den Variablen zugewiesen werden können
+\begin{enumerate}
+    \item \fatsf{Arten von Constraints}
+    \begin{itemize}
+        \item \fatsf{Unäre Constraints} (Einzelvariable):
+        \begin{itemize}
+            \item Betreffen \fatsf{nur eine Variable}
+            \item Beispiel: Süd-Australien $\neq$ grün
+        \end{itemize}
+        \item \fatsf{Binäre Constraints} (Paarweise Einschränkungen):
+        \begin{itemize}
+            \item Betreffen \fatsf{zwei Variablen}
+            \item Beispiel: Süd-Australien $\neq$ West-Australien (benachbarte Staaten müssen unterschiedliche Farben haben)
+        \end{itemize}
+        \item \fatsf{Höhere-Ordnungs-Constraints} (Drei oder mehr Variablen)
+        \begin{itemize}
+            \item Beispiel: Eine Gruppe von Variablen muss zusammen eine bestimmte Bedingung erfüllen
+        \end{itemize}
+        \item \fatsf{Weiche Constraints (Soft Constraints):}
+        \begin{itemize}
+            \item keine festen Regeln, aber wünschenswerte Bedingungen
+            \item Beispiel: Rot ist besser als Grün (Präferenzen in Optimierungsproblemen)
+            \item CSP's mit weichen Constraints nennt man \fatsf{Constrained Optimization Problems}
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+\subsubsection*{How do we solve CSPs?}
+Es gibt zwei Hauptmethoden:
+\begin{enumerate}
+    \item \fatsf{Suche (Search-based CSP Solving)}
+    \begin{itemize}
+        \item Iterative \fatsf{Zuweisung von Werten} an Variablen
+        \item \fatsf{Überprüfung} der Constraints nach jeder Zuweisung
+        \item Falls eine \fatsf{Constraint verletzt wird}, erfolgt \fatsf{Backtracking}
+        \item Ziel: Eine \fatsf{vollständige konsistente Zuweisung} für alle Variablen
+    \end{itemize}
+    \item \fatsf{Constraint Propagation}
+    \begin{itemize}
+        \item Behalten für jede Variable $X_{i}$ eine \fatsf{Menge von möglichen Werten $D_{i}$} bei
+        \item Versuchen, \fatsf{unmögliche Werte zu eliminieren}, um die Menge $D_{i}$ zu reduzieren
+        \item Beispiel: \fatsf{Arc Consistency (AC-3)} reduziert die Domäne durch Überprüfung binärer Constraints
+    \end{itemize}
+\end{enumerate}
+\subsubsection*{Search-Based CSP Solving}
+CSPs können als \fatsf{Suchprobleme} formuliert werden:
+\begin{itemize}
+    \item \fatsf{Knoten:} Teilweise zugewiesene Variablen
+    \item \fatsf{Nachbarn:} Neue Zuweisungen für eine weitere Variable
+    \item \fatsf{Startknoten:} Leere Zuweisung
+    \item \fatsf{Zielknoten:} Alle Variablen sind zugewiesen und \fatsf{alle Constraints sind erfüllt}
+\end{itemize}
+\fatsf{Wie bauen wir den Suchraum auf?}
+\begin{enumerate}
+    \item \fatsf{Start:} Leere Zuweisung
+    \item \fatsf{Nachfolger:} Jede Möglichkeit, eine Variable zuzuweisen
+    \item \fatsf{Schrittweise Zuweisung weiterer Variablen}
+\end{enumerate}
+\subsubsection*{Naive Search \& Komplexität}
+Die naive Lösung ist eine \fatsf{vollständige Tiefensuche} durch den Suchraum\\
+\fatsf{Annahmen:}
+\begin{itemize}
+    \item n Variablen mit v möglichen Werten pro Variable
+    \item Alle Lösungen befinden sich auf \fatsf{Tiefe n} im Suchbaum
+\end{itemize}
+\fatsf{Berechnung der Komplexität:}
+\begin{itemize}
+    \item Auf \fatsf{Ebene 1:} n $\times$ v mögliche Zuweisungen
+    \item Auf \fatsf{Ebene 2:} $(n - 1) \times v$ mögliche Zuweisungen
+    \item Allgemein: \fatsf{Branching Factor auf Tiefe l = (n - l + 1) $\times$ v}
+    \item \fatsf{Gesamtanzahl der Blätter im Suchraum:} $n! \times v^{n}$
+\end{itemize}
+\fatsf{Problem: Exponentielle Komplexität} $\rightarrow$ Sehr ineffizient für große CSPs!
+\subsubsection*{Effizientere Lösungen: Commutative Variable Assignments}
+\fatsf{Optimierung:} Reihenfolge der Zuweisung ist irrelevant!\\
+Beispiel:
+\begin{itemize}
+    \item Ob wir zuerst WA = rot, NT = grün oder umgekehrt zuweisen, ist egal
+    \item \fatsf{Lösung:} Zuweisungen können \fatsf{ohne Reihenfolge-Überprüfung} durchgeführt werden
+    \item Dadurch \fatsf{Reduktion der Komplexität} von $n! \times v^{n}$ auf $v^{n}$
+\end{itemize}
+\fatsf{Effizeinzsteigerung durch Heuristiken:}
+\begin{itemize}
+    \item \fatsf{Minimum Remaining Values (MRV):} Wähle die Variable mit den \fatsf{wenigsten verbleibenden Optionen} zuerst
+    \item \fatsf{Least Constraining Value:} Wähle den Wert, der die \fatsf{wenigsten zukünftigen Einschränkungen verursacht}
+\end{itemize} 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/Commutative Variable Assignments.jpeg}
+\end{figure}
+\clearpage
+\subsubsection*{Backtracking Search in CSPs}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/Backtracking Search.jpeg}
+\end{figure}
+Backtracking ist eine \fatsf{tiefensuchbasierte (DFS) Methode}, die schrittweise eine \fatsf{einzelne Variable pro Ebene zuweist}\\
+\fatsf{Eigenschaften von Backtracking:}
+\begin{itemize}
+    \item Grundlegender , uninformativer Suchalgorithmus für CSPs
+    \item Fügt eine Variable nach der anderen hinzu, solange keine Konflikte auftreten
+    \item Lösung gefunden: Falls eine legale vollständige Zuweisung existiert
+    \item Effizienter als brutale Kraft (Naive Suche), aber trotzdem exponentielle Worst-Case-Komplexität
+    \item Kann das n-Queens Problem bis n = 25 lösen
+    \item Verbesserungen durch Heuristiken möglich
+\end{itemize}
+\fatsf{Problem von Backtracking:}
+\begin{itemize}
+    \item Wenn eine inkonsistente Belegung erkannt wird, muss der Algorithmus zur letzten gültigen Zuweisung zurückkehren (Backtracken)
+    \item Im Wort-Case exponentielle Laufzeit O($v^{n}$)
+    \item Bei großen CSPs zu ineffizient, wenn keine Optimierungstechniken eingesetzt werden
+\end{itemize}
+\subsubsection*{Constraint Propagation (Beispiel: Sudoku)}
+Ein \fatsf{leistungsfähigeres Verfahren} zur Reduzierung der Anzahl möglicher Werte vor der eigentlichen Suche\\
+\fatsf{Sudoku als CSP:}
+\begin{itemize}
+    \item 81 Variablen (Felder des Gitters)
+    \item \fatsf{Domäne:} Werte von \fatsf{1 bis 9}
+    \item \fatsf{Constraints:}
+    \begin{itemize}
+        \item Vorab definierte Zahlen sind fest
+        \item Jede \fatsf{Zeile, Spalte und 3x3-Box} muss unterschiedlichen Zahlen enthalten (27 Constraints)
+    \end{itemize}
+\end{itemize}
+\fatsf{Idee der Constraint Propagation:}
+\begin{itemize}
+    \item \fatsf{Schrittweises Eliminieren unmöglicher Werte} für jede Variable
+    \item \fatsf{Ziel:} Domäne $D_{i}$ für jede Variable $X_{i}$ zu verkleinern
+    \item \fatsf{Beispiel:} Falls ein Feld nur noch eine Möglichkeit hat, muss es diesen Wert annehmen
+    \item \fatsf{Effekt:} Reduziert Suchraum drastisch - viele Sudoku-Rätsel lassen sich \fatsf{ohne Backtracking lösen!}
+\end{itemize}
+\fatsf{Status:} Automatisierte Constraint-Solver lösen selbst schwerste Sudokus extrem schnell!
+\subsubsection*{Optimierung von Backtracking: General-Purpose Methods}
+\fatsf{Fragen zur Optimierung:}
+\begin{enumerate}
+    \item Welche Variable sollte als nächstes zugewiesen werden?
+    \item In welcher Reihenfolge sollten die Werte getestet werden?
+    \item Können wir offensichtliche Sackgassen frühzeitig erkennen?
+    \item Können wir von Problemstrukturen profitieren?
+\end{enumerate}
+\fatsf{Antwort: Intelligente Heuristiken!}
+\subsubsection*{Heuristics for CSPs}
+\begin{enumerate}
+    \item \fatsf{Minimum Remaining Values (MRV) Heuristic}
+    \begin{itemize}
+        \item \fatsf{Wähle die Variable mit den wenigsten verbleibenden konsistenten Werten}
+        \item Grund: Diese Variable wird am schwierigsten zuzuweisen sein - also priorisieren!
+        \item \fatsf{Effekt:} Reduziert frühzeitig die Anzahl der Möglichkeiten und verhindert tiefe Fehlersuche
+    \end{itemize}
+    \fatsf{Bespiel:} Wenn ein Sudoku-Feld nur noch \fatsf{eine mögliche Zahl} hat, setzen wir es direkt!
+    \item \fatsf{Degree Heuristic}
+    \begin{itemize}
+        \item \fatsf{Wähle die Variable mit den meisten Constraints auf verbleibenden Variablen}
+        \item Grund: Diese Variable schränkt andere am stärksten ein - je früher wir sie setzen, desto besser
+        \item \fatsf{Effekt:} Verringert die Unsicherheiten für verbleibende Variablen
+    \end{itemize}
+    \fatsf{Beispiel:} Beim \fatsf{Vier-Farben-Problem} wählen wir zuerst das Gebiet mit den meisten Nachbarn, da es die anderen stakt beeinflusst
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\linewidth]{CSP_Images/Degree Heuristic.jpeg}
+    \end{figure}
+    \item \fatsf{Least Constraining Value (LCV) Heuristic}
+    \begin{itemize}
+        \item \fatsf{Für eine Variable: Wähle den Wert, der die wenigsten Werte für andere Variablen blockiert}
+        \item Grund: Dadurch bleibt mehr Flexibilität für spätere Zuweisungen
+        \item \fatsf{Effekt:} Verhindert Sackgassen und unnötige Backtracking-Schritte
+    \end{itemize}
+    \fatsf{Beispiel:} WEnn wir eine Farbe für ein Gebiet in einer Landkarte wählen, nehmen wir \fatsf{diejenige, die möglichst viele Optionen für die Nachbargebiete übrig lässt}
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\linewidth]{CSP_Images/LCV.jpeg}
+    \end{figure}
+\end{enumerate}
+\fatsf{Kombinierte Anwendung der Heuristiken}\\
+\fatsf{MRV $\rightarrow$ Degree $\rightarrow$ LCV} ergibt eine extrem effiziente Suchstrategie!
+\begin{enumerate}
+    \item \fatsf{MRV:} Wähle schwierigste Variable zuerst
+    \item \fatsf{Degree:} Falls mehrere Optionen, wähle die mit den meisten Constraints
+    \item \fatsf{LCV:} Falls mehrere Werte möglich, wähle den flexibelsten
+\end{enumerate}
+\subsection{Constraint Propagation}
+\fatsf{Idee:}
+\begin{itemize}
+    \item Reduziert frühzeitig die Anzahl möglicher Werte für Variablen
+    \item Erlaubt es, \fatsf{Suche effizienter zu gestalten} (z.B. bei Sudoku)
+    \item Ziel: \fatsf{Wiedersprüche frühzeitig erkennen} und unnötige Berechnungen vermeiden
+\end{itemize}
+\subsubsection*{Node Consistency (1-Consistency)}
+Ein \fatsf{Knoten (Variable) ist konsistent}, wenn alle seine möglichen Werte mit \fatsf{unären Constraints} übereinstimmen\\
+Beispiel: \fatsf{Sudoku}
+\begin{itemize}
+    \item Varab ausgefüllte Zahlen sind automatisch \fatsf{node-consistent}, weil sie auf einen einzigen Wert beschränkt sind
+\end{itemize}
+\subsubsection*{Arc Consistency (2-Consistency)}
+Ein \fatsf{Bogen (Arc) ist konsistent}, wenn für \fatsf{jeden Wert $X_{i} in der Domäne$} eine gültige Wahl für $X_{j}$ existiert, sodass die \fatsf{Constraint-Bedingung zwischen den beiden Variablen erfüllt ist}
+\begin{itemize}
+    \item Prüft \fatsf{binäre Constraints} (zwei Variablen)
+    \item Falls eine Variable \fatsf{keine möglichen Werte mehr hat}, gibt es \fatsf{keine Lösung}
+    \item In der Praxis häufig genutzt
+\end{itemize}
+\fatsf{Besipiel:} In \fatsf{Vier-Farben-Problem} bedeutet Arc Consistency, dass für jede Farbe einer Region mindestens eine zulässige Nachbarfarbe existiert
+\subsubsection*{Forward Checking}
+\fatsf{Idee:}\\
+Nach jeder Variablenzuweisung werden die \fatsf{Domänen der noch nicht zugewiesenen Variablen reduziert}
+\begin{itemize}
+    \item Falls eine Variable \fatsf{keine möglichen Werte mehr hat $\rightarrow$ Sofortiger Backtrack!}
+    \item Besonders hilfreich, um \fatsf{Fehlschläge frühzeitig zu erkennen}
+\end{itemize}
+\fatsf{Beispiel:} Im \fatsf{Sudoku:} Falls wir eine 3 in eine Zeile setzen, entfernen wir 3 aus allen möglichen Werte der zugehörigen Zeile, Spalte und Box
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/Forward Checking.jpeg}
+\end{figure}
+\subsubsection*{AC-3 Algorithmus}
+Ein effizienter Algorithmus zur \fatsf{Herstellung von Arc Consistency}
+\fatsf{Prinzip:}
+\begin{itemize}
+    \item Überprüft systematisch, ob für jede Variable mindestens ein passender Wert für ihre Nachbarn existiert
+    \item Falls eine Änderung vorgenommen wird, werden betroffene Bögen erneut überprüft
+\end{itemize}
+\fatsf{Laufzeit:} O($ed^{2}$) (e = Anzahl der Bögen, d = maximale Domänengröße)\\
+\fatsf{Beispiel:} Im \fatsf{Sudoku} reduziert AC-3 die Anzahl möglicher Werte drastisch und kann viele Rätsel \fatsf{ohne Backtracking lösen!}
+\subsubsection*{Path Consistency (3-Consistency)}
+\fatsf{Idee:}
+\begin{itemize}
+    \item Überprüft, ob \fatsf{zwei Variablen konsistent mit einer dritten Variable $X_{m}$ sind}
+    \item Erlaubt feinere Reduktion des Suchraums als Arc Consistency
+\end{itemize}
+\fatsf{Formale Definition:}\\
+Ein Paar ($X_{i}, X_{j}$) ist path-consistent mit $X_{m}$, wenn für jede gültige Zuweisung von $X_{i}$ und $X_{j}$ eine gültige Wahl für $X_{m}$ existiert\\
+\fatsf{Beispiel:} Im \fatsf{n-Queens Problem} wird überprüft, ob zwei Damen nicht nur einander, sondern auch weitere Damen in einer dritten Dimension (Diagonale) beeinflussen
+\subsubsection*{k-Consistency}
+Generalisierung von Konsistenz auf \fatsf{mehr als zwei Variablen}
+\begin{itemize}
+    \item \fatsf{1-Consistency:} Node Consistency
+    \item \fatsf{2-Consistency:} Arc Consistency
+    \item \fatsf{3-Consistency:} Path Consistency
+    \item \fatsf{k-Consistency:} Ein Set von k Variablen muss konsistent sein
+\end{itemize}
+\fatsf{Problem:}
+\begin{itemize}
+    \item Überprüfung von \fatsf{k-Consistency ist exponentiell in k}
+    \item Daher wird \fatsf{Arc Consistency (2-Consistency) am häufigsten verwendet}
+\end{itemize}
+\subsubsection*{Constraint Propagation \& Backtracking Search}
+\fatsf{Idee:} Kombination von Constraint Propagation mit Backtracking, um den Suchraum effizeint zu reduzieren\\
+\fatsf{Prinzip:}
+\begin{enumerate}
+    \item \fatsf{Nach jeder Variablenzuweisung} wird ein Constraint Propagation Algorithmus angewendet
+    \item Dadurch \fatsf{reduziert sich die Anzahl möglicher Werte für andere Variablen}
+    \item Dies führt zu \fatsf{weniger Backtracking} und verbessert die Effizienz
+\end{enumerate}
+\subsubsection*{Mögliche Algorithmen zur Constraint Propagation}
+\begin{itemize}
+    \item \fatsf{Forward Checking}
+    \begin{itemize}
+        \item Entfernt direkt nach jeder Zuweisung unzulässige Werte aus den verbleibenden Variablen
+        \item Falls eine Variable \fatsf{keine Werte mehr hat $\rightarrow$ Backtrack}
+    \end{itemize}
+    \fatsf{Beispiel:} In \fatsf{Sudoku} werden nach jeder Zahleneitragung die Domänen der betroffenen Felder reduziert
+    \item \fatsf{AC-3 Algorithmus}
+    \begin{itemize}
+        \item Stellt \fatsf{Arc Consistency} für alle Bögen her
+        \item Falls eine Variable \fatsf{keine Werte mehr hat $\rightarrow$ Backtrack}
+    \end{itemize}
+    \fatsf{Beispiel:} Kann oft CSPs \fatsf{ohne Backtracking vollständig lösen!}
+\end{itemize}
+\subsubsection*{Local Search für CSPs}
+\fatsf{Modifikationen für CSP:}
+\begin{itemize}
+    \item Arbeitet mit \fatsf{kompletten Zuständen} (alle Variablen sind belegt)
+    \item Erlaubt \fatsf{Zustände mit verletzten Constraints}
+    \item \fatsf{Operatoren:} Weisen Variablen \fatsf{neue Werte zu}, um Konflikte zu minimieren
+\end{itemize}
+\fatsf{Min-Conflicts Heuristic}
+\begin{enumerate}
+    \item Wähle eine zufällige Variable mit \fatsf{verletzt} Constraints
+    \item Wechsle ihren Wert auf den, der \fatsf{die wenigsten Konflikte verursacht}
+    \item Dies entspricht \fatsf{Hill Climbing mit h(n) = Anzahl der verletzten Constraints}
+\end{enumerate}
+\fatsf{Beispiel:} Sehr effizient für \fatsf{n-Queens Problem} (löst 1 Mio. Queens in Sekunden!)
+\subsubsection*{Problem-Dekomposition}
+\fatsf{Idee:}
+\begin{itemize}
+    \item \fatsf{Große CSPs in kleinere Teilprobleme zerlegen} $\rightarrow$ drastische Reduzierung der Komplexität!
+\end{itemize}
+\begin{itemize}
+    \item \fatsf{Standard-Komplexität:} $O(d^{n})$ für n Variablen mit d möglichen Werten
+    \item \fatsf{Nach Dekomposition:} Falls Teilprobleme je c Variablen haben, reduziert sich die Komplexität auf $O(n/c \times d^{c})$
+\end{itemize}
+\fatsf{Beispiel:} Für n = 80, d = 2, c = 20 ergibt sich eine massive \fatsf{Verkleinerung des Suchraums!} $\rightarrow$ $2^{80} \neq 4 \times 2^{20}$
+\subsubsection*{Tree-structured CSPs}
+\fatsf{Theorem:}
+\begin{itemize}
+    \item Jedes CSP mit Baumstruktur kann in linearen Zeit gelöst werden!
+    \item Komplexität: O($n \times d^{2}$)
+\end{itemize}
+\fatsf{Algorithmus:}
+\begin{enumerate}
+    \item Wähle eine Variable als \fatsf{Wurzel}
+    \item Ordne alle Variablen so, dass \fatsf{Eltern vor ihren Kinderns kommen}
+    \item \fatsf{Von den Blättern bis zur Wurzel}
+    \begin{itemize}
+        \item Mache jeden Bogen ($X_{i}, X_{j}$) \fatsf{arc-consistent}
+    \end{itemize}
+    \item \fatsf{Von der Wurzel abwärts:}
+    \begin{itemize}
+        \item Weise jeder Variablen eine \fatsf{gültige Belegung} zu
+    \end{itemize}
+\end{enumerate}
+\fatsf{Beispiel:} Falls der CSP-Graph ein \fatsf{Baum} ist, kann er \fatsf{ohne Backtracking} gelöst werden!
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/Tree-structured CSPs.jpeg}
+\end{figure}
+\subsubsection*{Nearly Tree-structured CSPs}
+\fatsf{Problem:} Baumstruktur ist selten in realten Problemen (oft gibt es Zyklen)\\
+\fatsf{Zwei Techniken zur Reduktion auf Bäume:}
+\begin{enumerate}
+    \item \fatsf{Cutset Conditioning}
+    \begin{itemize}
+        \item Entferne eine \fatsf{kleine Anzahl von Variablen}, sodass der Graph \fatsf{baumförmig} wird
+        \item Löse dann das Problem mit \fatsf{Baum-Algorithmus}
+    \end{itemize}
+    \item \fatsf{Knoten-Zusammenfassung}
+    \begin{itemize}
+        \item \fatsf{Gruppiere Variablen} zu \fatsf{Teilproblemen mit Baumstrutkur}
+        \item Löse die kleineren Teilproblem \fatsf{unabhängig}
+    \end{itemize}
+\end{enumerate}
+\fatsf{Beispiel für Cutset Conditioning:} Entferne \fatsf{einige Variablen}, sodass der Rest \fatsf{baumartig} wird $\rightarrow$ dann effizient lösbar!
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{CSP_Images/Cutset Conditioning.jpeg}
+\end{figure}

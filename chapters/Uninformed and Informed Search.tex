@@ -1,0 +1,533 @@
+\section{Uninformed and Informed Search}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Uninformed and Informed Search.jpeg}
+\end{figure}
+\enquote{Stell dir vor, du bist in einer fremden Stadt und möchtest mit öffentlichen Verkehrsmitteln vom Hotel zum Strand gelangen (aber ohne Smartphone, nur mit einer Karte). Was tust du?}
+\begin{itemize}
+    \item Problemdefinition
+    \item Baumsuchalgorithmen
+    \item Suchstrategien
+    \item Uninformierte Suchalgorithmen
+    \item Heuristiken
+    \item Informierte Suchalgorithmen
+\end{itemize}
+\clearpage
+\subsection{Du hast ein Ziel, also du bist ein zielorientierter Agent}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/goal based agent.jpeg}
+\end{figure}
+\blue{Ok, aber wie lösen wir ein Problem (im Allgemeinen)?}
+\subsection{Wie man ein Problem löst}
+Alles dreht sich um \fatsf{Problem-lösende Agenten:}
+\begin{itemize}
+    \item \fatsf{Problem-lösende Agenten} sind ergebnisorientiert - Sie konzentrieren sich immer darauf, ihre Ziele zu erreichen, d.h. das Problem zu lösen
+    \item Probleme werden häufig in einer für Menschen verständlichen Weise dargestellt - Wir müssen das Problem für unseren Agenten umformulieren
+    \item \fatsf{Problem-lösende Agenten} verwenden Algorithmen, um Lösungen zu entwickeln oder zu finden
+\end{itemize}
+\fatsf{Schritte, um ein lösbares Problem zu formulieren:}
+\begin{enumerate}
+    \item \fatsf{Ziel formulieren} - Was wollen wir erreichen?
+    \item \fatsf{Das Problem formulieren} - Wie können wir das Ziel erreichen?
+    \begin{itemize}
+        \item Hierbei geht es darum, den Zustand der Umgebung zu beschreiben, die möglichen Aktionen zu definieren und die Übergänge zwischen den Zuständen zu verstehen, die der Agent ausführen kann, um das Ziel zu erreichen
+    \end{itemize}
+\end{enumerate}
+\subsection{Einige Schlüsselbegriffe zur Problembeschreibung}
+\begin{defBox}[title=Der Zustandsraum/Zustände]
+    \begin{itemize}
+        \item \fatsf{Zustand:} Ein Zustand beschreibt eine mögliche Situation in unserer Umgebung
+        \item \fatsf{Zustandsraum:} Der Zustandsraum ist die Menge aller möglichen Situationen (Zustände) in einem Problem
+    \end{itemize}
+\end{defBox}
+\begin{defBox}[title=Übergänge/Handlungen]
+    \begin{itemize}
+        \item \fatsf{Übergang:} Ein Übergang beschreibt eine mögliche Aktion, die von einem Zustand zu einem anderen führt. Nur direkte Übergänge werden berücksichtigt
+    \end{itemize}
+\end{defBox}
+\begin{defBox}[title=Kosten]
+    \begin{itemize}
+        \item \fatsf{Kosten:} Häufig sind Übergänge nicht gleich und unterscheiden sich. Dies wird durch das Hinzufügen von \fatsf{Kosten} zu jeder Handlung ausgedrückt
+        \item Oft ist das Ziel in Suchalgorithmen, die \fatsf{Kosten} zu minimieren, um das Ziel zu erreichen
+    \end{itemize}
+\end{defBox}
+\subsection{Wie man ein Problem löst}
+\subsubsection*{Komponenten zur Formulierung eines Problems}
+Ein einfaches Problem ist durch vier Elemente definiert:
+\begin{enumerate}
+    \item \fatsf{Zustandsraum und Anfangszustand:}
+    \begin{itemize}
+        \item Beschreibung aller möglichen Zustände und der anfänglichen Umgebung als Zustand
+    \end{itemize}
+    \item \fatsf{Beschreibung der Handlungen:}
+    \begin{itemize}
+        \item Typischerweise eine Funktion, die einen Zustand auf eine Menge möglicher Handlungen in diesem Zustand abbildet
+    \end{itemize}
+    \item \fatsf{Zieltest:}
+    \begin{itemize}
+        \item Typischerweise eine Funktion, die überprüft, ob der aktuelle Zustand die Zieldefinition erfüllt
+    \end{itemize}
+    \item \fatsf{Kosten:}
+    \begin{itemize}
+        \item Eine Kostenfunktion, die Handlungen ihren jeweiligen Kosten zuweist
+        \item Eine einfache Methode ist, additive Kosten zu verwenden (Summe der Kosten aller ausgeführten Handlungen)
+    \end{itemize}
+\end{enumerate}
+\subsection{Der Zustandsraum eines Problems}
+\blue{Zustandsraum}
+\begin{itemize}
+    \item Der Zustandsraum ist die Menge aller Zustände, die vom Anfangszustand erreicht werden können
+    \item Er wird implizit durch den Anfangszustand und die Nachfolgefunktion definiert, wodurch ein \fatsf{Zustandsraum-Graph} entsteht
+\end{itemize}
+\blue{Pfad}
+\begin{itemize}
+    \item Ein \fatsf{Pfad} ist eine Folge von Zuständen, die durch eine Abfolge von Handlungen miteinander verbunden sind
+\end{itemize}
+\blue{Lösung}
+\begin{itemize}
+    \item Eine \fatsf{Lösung} ist ein Pfad, der vom Anfangszustand zu einem Zielzustand führt
+\end{itemize}
+\blue{Optimale Lösung}
+\begin{itemize}
+    \item Eine \fatsf{optimale Lösung} ist die Lösung mit den minimalen Pfadkosten
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Uninformed and Informed Search Images/State Space.jpeg}
+\end{figure}
+\subsection{Ein weiteres Beispeil: Eine Route durch Romänien finden}
+\begin{itemize}
+    \item \fatsf{Problem:} Du befindest dich in Arad und musst den schnellsten Weg nach Bukarest finden, um deinen Flug morgen zu erreichen
+    \item \fatsf{Umgebung:} Siehe Abbildung 
+    \item \fatsf{Anfangszustand:} Arad
+    \item \fatsf{Beschreibung der Handlungen:} Eine Funktion, die die Städte definiert, die von der aktuellen Stadt aus erreicht werden können
+    \item \fatsf{Ziel:} In Bukarest ankommen
+    \item \fatsf{Kosten:} Eine Funktion, die die Kosten für das Reisen von einer Stadt zur anderen basierend auf Geschwindigkeit und/oder anderen Kriterien berechnet
+    \item \fatsf{Lösung:} Eine Abfolge von Ständten/Handlungen, um von Arad nach Bukarest zu gelangen
+\end{itemize}
+\subsubsection*{Zustandsraum/Umgebung definieren}
+Die reale Welt ist \fatsf{absurd komplex!}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Uninformed and Informed Search Images/Real world complexity.jpeg}
+\end{figure}
+\\
+Eine Möglichkeit, mit der Komplexität der realen Welt umzugehen, ist \fatsf{Abstraktion}, um das Problem besser zu verstehen und handhabbar zu machen
+\clearpage
+\subsection{Noch ein weiteres Beispeil: Das 8-Puzzle}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Uninformed and Informed Search Images/The 8-puzzle.jpeg}
+\end{figure}
+\begin{itemize}
+    \item \fatsf{Zustände?}
+    \begin{itemize}
+        \item Position der Plättchen (wir ignorieren Zwischenpositionen während des Verschiebens)
+    \end{itemize}
+    \item \fatsf{Zieltest?}
+    \begin{itemize}
+        \item Die Situation entspricht dem Zielzustand
+    \end{itemize}
+    \item \fatsf{Pfadkosten?}
+    \begin{itemize}
+        \item Anzahl der Schritte im Pfad (jeder Schritt kostet 1)
+    \end{itemize}
+    \item \fatsf{Handlungen?}
+    \begin{itemize}
+        \item Leeres Feld bewegen (links, rechts, oben, unten) - einfacher, als separate Züge für jedes Plättchen zu haben. Handlungen wie das Entstauen von Störungen werden ignoriert, falls die Plättchen feststecken
+    \end{itemize}
+\end{itemize}
+\subsection{Noch ein weiteres Beispiel: Das 8-Damen-Problem}
+Das Problem, 8 Schachdamen auf einem 8x8 Schachbrett zu platzieren, sodass keine zwei Damen einander bedrohen
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Uninformed and Informed Search Images/The 8-Queens Problem.jpeg}
+\end{figure}
+\begin{itemize}
+    \item \fatsf{Zustände?}
+    \begin{itemize}
+        \item Jede Konfiguration von 8 Damen auf dem Schachbrett
+    \end{itemize}
+    \item \fatsf{Zieltest?}
+    \begin{itemize}
+        \item Keine Dame kann eine andere Dame angreifen
+    \end{itemize}
+    \item \fatsf{Handlungen?}
+    \begin{itemize}
+        \item Bewege eine der Damen auf ein anderes Feld
+    \end{itemize}
+    \item \fatsf{Pfadkosten?}
+    \begin{itemize}
+        \item Hier nicht von Interesse
+    \end{itemize}
+    \item \fatsf{Ineffiziente vollständige Zustandsformulierung}
+    \begin{itemize}
+        \item Es gibt $\rightarrow$ 64 $\times$ 63 $\times$ ... $\times$ 57 $\approx$ 3 $\times$ $10^{14}$ Zustände, was zu einer sehr großen Anzahl von Zuständen führt
+    \end{itemize}
+    \item \fatsf{Effiziente inkrementelle Formulierung:}
+    \begin{itemize}
+        \item Die Zustände können nur \fatsf{2057 Zustände} umfassen, wenn man die Damen nur in den linken \fatsf{n} Spalten anordnet und schrittweise weitergeht, ohne dass sich die Damen gegenseitig bedrohen
+    \end{itemize}
+\end{itemize}
+
+\subsection{Wie löst man ein Problem?}
+Nun, da wir wissen, wie man Probleme beschreibt, können wir überlegen, wie man nach einer Lösung sucht\\
+\fatsf{Planungsproblem}\\
+Ein Planungsproblem ist ein Problem, bei dem wir einen Anfangszustand haben und diesen in eine gewünschten Zielzustand umwandeln möchten, unter Berücksichtigung der zukünftigen Aktionen und deren Auswirkungen\\
+\fatsf{Suche}\\
+Die Suche ist der Prozess, das (optimale) Lösung für ein solches Problem zu finden, und zwar in Form einer Aktionssequenz
+\subsection{Tree Search Algorithms}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Tree Search Algorithms.jpeg}
+\end{figure}
+\fatsf{Idee:} Behandle den Zustandsraum als einen Baum
+\begin{itemize}
+    \item Man kann eine simulierte, iterative Erkundung des Zustandsraums verwenden
+    \item Es wird eine Strategie benötigt, um zu bestimmen, welcher Knoten als nächstes erweitert wird
+\end{itemize}
+\begin{codeBlock}{}
+    function Tree-Search (problem, strategy) returns a solution, or failure
+        initialize the search tree using the inital state of problem
+        loop do 
+             if there are no candidates for expansionthen return failure
+             choose a leaf node for expansion according to strategy
+             if the node contains a goal state then return the coresponding solution
+             else expand the node and add the resulting nodes to the search tree
+        end
+\end{codeBlock}
+\clearpage
+\subsubsection*{Beispiel: Rumänien}
+\begin{enumerate}
+    \item \fatsf{Initialer Zustand:} Starte mit dem Knoten \fatsf{Arad}
+    \item \fatsf{Erweiterung des Knotens:} Erweitere den Knoten \fatsf{Arad}
+    \item \fatsf{Erweiterung des Knotens:} Erweitere den Knoten \fatsf{Sibiu}
+\end{enumerate}
+\begin{defBox}[title=Fringe]
+    Die Menge aller Knoten am Ende aller besuchten Pfade als \fatsf{Fringe} bezeichnet (andere Namen sind \fatsf{Frontier} oder \fatsf{Border})
+\end{defBox}
+\begin{defBox}[title=Tiefe]
+    Die Tiefe ist die Anzahl der Ebenen im Suchbaum
+\end{defBox}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Ronamia.jpeg}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Fringe-Depth.jpeg}
+\end{figure}
+\clearpage
+\subsection{Unterschied zwischen Zuständen und Knoten}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Uninformed and Informed Search Images/Difference between States and Nodes.jpeg}
+\end{figure}
+\begin{defBox}[title=Zustand]
+    Eine Darstellung einer physischen Konfiguration. Beschreibt eine spezifische Situation in unserer Umgebung
+\end{defBox}
+\begin{defBox}[title=Knoten]
+    Eine Datenstruktur, die einen Teil des Suchbaums darstellt. Sie enthält den Zustand, den Elternknoten, die getätigte Aktion, die Pfadkosten und die aktuelle Tiefe des Baums
+\end{defBox}
+\begin{defBox}[title=Knoten erweitern]
+    Das Erweitern eines Knotens erzeugt neue Knoten (Blatt-/Nachfolgerknoten des gewählten Knotens) und aktualisiert den Baum
+\end{defBox}
+\subsection{Suchstrategien}
+\fatsf{Suchstrategie:}\\
+Eine Suchstrategie wird durch die Reihenfolge bestimmt, in der Knoten erweitert werden\\
+Unterschiedliche Suchstrategien werden anhand der folgenden Dimensionen beschrieben/bewertet:
+\begin{itemize}
+    \item \fatsf{Vollständigkeit:} Findet die Strategie immer eine Lösung, wenn sie existiert?
+    \item \fatsf{Zeitkomplexität:} Anzahl der Knoten-Erweiterungen
+    \item \fatsf{Speicherkomplexität:} Maximale Anzahl an Knoten im Speicher
+    \item \fatsf{Optimalität:} Findet die Strategie immer die optimale (kostengünstigste) Lösung?
+\end{itemize}
+\fatsf{Komplexitätsmaße:}
+\begin{itemize}
+    \item \fatsf{b:} Der maximale Verzweigungsfaktor des Suchbaums
+    \item \fatsf{d:} Die Tiefe der optimalen Lösung
+    \item \fatsf{m:} Die maximale Tiefe des Zustandsraumbaums (kann unendlich sein)
+\end{itemize}
+\fatsf{Hauptgruppen der Suchstrategien:}
+\begin{enumerate}
+    \item \fatsf{Uninformierte Suche:}
+    \begin{itemize}
+        \item Keine zusätzliche Informationen außer der Problemdefinition
+        \item Beispiele:
+        \begin{itemize}
+            \item Breitensuche (BFS)
+            \item Einheitskostensuche
+            \item Tiefensuche (DFS)
+            \item Tiefenbeschränkte Suche
+            \item Iterative Vertiefung
+        \end{itemize}
+    \end{itemize}
+    \item \fatsf{Informierte Suche:}
+    \begin{itemize}
+        \item Verfügt über zusätzliche Informationen zum Problem und eine Idee, wo Lösungen zu finden sind
+        \item Beispiele:
+        \begin{itemize}
+            \item Gierige Best-First-Suche
+            \item A* Suche
+            \item Speicherbegrenzte Heuristische Suche
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+\subsection{Uninformierte Suchalgorithmen}
+\subsubsection*{Breitensuche (Breadth-First Search, BFS)}
+\begin{itemize}
+    \item Durchsucht die Zustände Ebene für Ebene
+    \item \fatsf{Vorteile:} Vollständig, findet immer die kürzeste Lösung
+    \item \fatsf{Nachteile:} Hoher Speicherverbrauch, ineffizient bei großen Suchräumen
+\end{itemize}
+\subsubsection*{Tiefensuche (Depth-First Search, DFS)}
+\begin{itemize}
+    \item Durchläuft den Baum so tief wie möglich, bevor es zurückgeht
+    \item \fatsf{Vorteile:} Speicherplatzsparend, kann schnelle Lösung finden
+    \item \fatsf{Nachteile:} Nicht optimal, kann in Endlosschleife geraten
+\end{itemize}
+\subsubsection*{Einheitlicher Kostenalgorithmus (Uniform-Cost Search, UCS)}
+\begin{itemize}
+    \item Erweitert stets den Knoten mit den geringsten bisherigen Kosten
+    \item \fatsf{Vorteile:} Optimal, wenn alle Knoten positiv sind
+    \item \fatsf{Nachteile:} Hoher Speicherverbrauch
+\end{itemize}
+\subsubsection*{Iterative Tiefensuche (Iterative Deepening Search, IDS)}
+\begin{itemize}
+    \item Kombination aus DFS und BFS, indem es wiederholt DFS bis zu einer bestimmten Tiefe ausführt
+    \item \fatsf{Voteile:} Vollständig, optimal wie BFS, aber mit geringerem Speicherverbraucht
+    \item \fatsf{Nachteile:} Mehrfaches Durchlaufen von Knoten erhöht Laufzeit
+\end{itemize}
+\subsubsection*{Bidirektionale Suche (Bidirectional Search)}
+\begin{itemize}
+    \item Startet gleichzeitig vom Anfang und vom Ziel und versucht, sich in der mitte zu treffen
+    \item \fatsf{Vorteile:} Reduziert die Suchkomplexität erheblich
+    \item \fatsf{Nachteile:} Erfordert genaue Definition des Zielzustands und umkehrbare Aktionen
+\end{itemize}
+\subsection{Informierte Suchalgorithmen}
+\subsubsection*{Greedy-Best-First Search}
+\begin{itemize}
+    \item Verwendet eine Heuristik, die die geschätzte Entfernung zum Ziel misst
+    \item \fatsf{Voteile:} Scheller als uninformierte Methoden
+    \item \fatsf{Nachteile:} Nicht unbedingt optimal, kann in Sackgassen enden
+\end{itemize}
+\subsubsection*{A-Algorithmus (A-Star Search, A*)}
+\begin{itemize}
+    \item Nutzt die Funktion f(n) = g(n) + h(n), wobei:
+    \begin{itemize}
+        \item g(n): Kosten vom Start zum aktuellen Knoten
+        \item h(n): Geschätzte Kosten vom aktuellen Knoten zum Ziel
+    \end{itemize}
+    \item \fatsf{Vorteile:} Optimal und effizient, wenn h(n) eine zulässige Heuristik ist
+    \item \fatsf{Nachteile:} Hoher Speicherbedarf, da alle Knoten gespeichert werden
+\end{itemize}
+\subsubsection*{Memory-Bounded Heuristic Search (z.B. IDA*)}
+\begin{itemize}
+    \item Optimiert A* durch Begrenzung des Speicherverbrauchs
+    \item \fatsf{Vorteile:} Spart Speicherplatz
+    \item \fatsf{Nachteile:} Kann ineffizient sein, da Knoten mehrfach berechnet werden
+\end{itemize}
+\begin{table}[H]
+    \centering
+    \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{lllll}
+        \toprule
+        Algorithmus & Vollständig? & Optimal? & Zeitkomplexität & Speicherverbrauch \\
+        \midrule
+        BFS & Ja & Ja & O($b^d$) & O($b^d$)\\
+        DFS & Nein & Nein & O($b^m$) & O($b*m$)\\
+        UCS & Ja & Ja & O(b\^(1+floor(C*/e))) & O($b^d$)\\
+        IDS & Ja & Ja & O($b^d$) & O($b*d$)\\
+        Greedy-BFS & Nein & Nein & O($b^m$) & O($b^m$)\\
+        A* & Ja & Ja & O($b^d$) & O($b^d$)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+\fatsf{Legende:}
+\begin{itemize}
+    \item \fatsf{b} = maximaler Verzweigungsfaktor
+    \item \fatsf{d} = Tiefe der optimalen Lösung
+    \item \fatsf{m} = maximale Tiefe des Suchbaums
+    \item \fatsf{C*} = Kosten der optimalen Lösung
+\end{itemize}
+
+\subsection{Optimalität von Heuristiken}
+\subsubsection*{Beispiel: Dominante Strategien am Beispiel des 8-Puzzles}
+Ein Vergleich der Anzahl der von A* und der iterativen Tiefensuche (IDS) durchsuchten Knoten:
+\begin{itemize}
+    \item Basierend auf dem Durchschnitt von 100 verschiedenen 8-Puzzle-Lösungen
+    \item Es zeigt sich, dass die Heuristik $h_{2}$(n) (Manhattan-Distanz) effizienter ist als $h_{1}$(n) (Anzahl fehlplatzierter Kacheln)
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Dominant Strategies onthe Example of 8-Puzzles.jpeg}
+\end{figure}
+Lässt sich dies noch weiter optimieren?
+\subsection{Das Reich der Heuristiken}
+\fatsf{Was sind Heuristiken?}\\
+Heuristiken sind Faustregeln, die helfen können, ein Problem effizient zu lösen.\\
+In der Baumsuche bezeichnet eine Heuristik eine Funktion \fatsf{h(n)}, die die verbleibenden Kosten bis zum Ziel abschätzt\\
+\fatsf{Admissible (zulässige) Heuristiken}\\
+Eine Heuristik ist zulässig, wenn sie die tatsächlichen Kosten zum Erreichen des Ziels niemals überschätzt\\
+Formal:
+\[
+    h(n) \leq h^{*}(n)
+\]
+wobei $h^{*}(n)$ die tatsächlichen Kosten von \fatsf{n} bis zum Ziel sind\\
+\fatsf{Beispiel:}
+\begin{itemize}
+    \item Die Luftliniendistanz \fatsf{hSLD(n)} ist eine zulässige Heuristik für die tatsächliche Entfernung
+\end{itemize}
+\fatsf{Konsistente Heuristiken (monoton)}\\
+Eine Heuristik ist konsistent, wenn für jeden Knoten \fatsf{n} und seinen Nachfolger \fatsf{n'}, erzeugt durch eine Aktion \fatsf{a}, gilt:
+\[
+    h(n) \leq c(n, a, n') + h(n')
+\]
+Das bedeutet, dass die Heuristik den Schritt-Kosten nie überschätzen darf\\
+Warum ist das sinnvoll?
+\begin{itemize}
+    \item Wenn es eine Route von \fatsf{n} zum Ziel gäbe, die günstiger als \fatsf{h(n)} wäre, dann wäre \fatsf{h(n)} keine zulässige untere Schranke
+    \item Diese Eigenschaft entspricht der Dreiecksungleichung
+\end{itemize}
+\fatsf{Wichtige Folgerungen:}
+\begin{enumerate}
+    \item Jede Konsistente Heuristik ist auch zulässig
+    \item Wenn \fatsf{h(n)} konsistent ist, dann nehmen die Werte von \fatsf{f(n) = g(n) + h(n)} entlang eines Pfads nie ab
+\end{enumerate}
+\subsubsection*{Entwicklung von Heuristiken: Heuristiken für das 8-Puzzle}
+\fatsf{Zwei grundlegende Ideen:}
+\begin{enumerate}
+    \item \fatsf{$h_{1}(n)$} = Anzahl der fehlplatzierten Kacheln
+    \item \fatsf{$h_{2}(n)$} = Gesamt-Manhattan-Distanz (Anzahl der Schritte, die jede Kachel zur Zielposition benötigt)
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Uninformed and Informed Search Images/The 8-puzzle.jpeg}
+\end{figure}
+\fatsf{Beispielwerte für den Startzustand:}
+\begin{itemize}
+    \item $h_{1}(start) = 8$
+    \item $h_{2}(start) = 3+1+2+2+2+3+3+2 = 18$
+\end{itemize}
+\fatsf{Sind $h_{1}$ und $h_{2}$ zulässig?}\\
+Ja, da sie die tatsächlichen Kosten zum Ziel niemals überschätzen
+\subsubsection*{Heuristiken für entspannte Probleme}
+Ein \fatsf{entspanntes Problem} ist eine Variante des ursprünglichen Problems mit weniger Einschränkungen bei den erlaubten Aktionen\\
+Die Kosten einer optimalen Lösung eines entspannten Problems ergeben eine zulässige Heuristik für das ursprüngliche Problem\\
+\fatsf{Beispiel für das 8-Puzzle:}
+\begin{itemize}
+    \item Falls eine Kachel überall hin verschoben werden darf $\rightarrow$ \fatsf{$h_{1}$ (fehlplatzierte Kacheln)} liefert die kürzeste Lösung
+    \item Falls eine Kachel nur in ein benachbartes Feld verschoben werden darf $\rightarrow$ \fatsf{$h_{2}$ (Manhattan-Distanz)} ist optimal
+\end{itemize}
+\fatsf{Fazit:}\\
+Das Finden eines geeigneten entspannten Problems ist eine effektive Methode zur Konstruktion zulässiger Heuristiken
+\subsubsection*{Dominanz von Heuristiken}
+Eine Heuristik $h_{2}(n)$ dominiert eine andere Heuristik $h_{1}(n)$, wenn gilt:
+\[
+    h_{2}(n) \geq h_{1}(n) \forall n
+\]
+Das bedeutet, dass $h_{2}(n)$ in allen Fällen eine genauere Schätzung der tatsächlichen Kosten liefert als $h_{1}(n)$\\
+\fatsf{Beispiel:}
+\begin{itemize}
+    \item \fatsf{$h_{2}$ (Manhattan-Distanz) dominiert $h_{1}$ (fehlplatzierte Kacheln)}, da eine fehlplatzierte Kachel mindestens einen Schritt benötigt, um korrekt positioniert zu werden
+\end{itemize}
+\fatsf{Warum ist Dominanz wichtig?}\\
+Suchalgorithmen erweitern jeden Knoten mit \fatsf{f(n) < $C^{*}$} (Kosten der optimalen Lösung). Eine dominante Heuristik führt zu weniger Erweiterungen und somit zu einer effizienten Suche
+\subsubsection*{Kombination von Heuristiken}
+Falls mehrere zulässige Heuristiken existieren, aber keine die anderen dominiert, können sie kombiniert werden:\\
+\fatsf{Theorem:}\\
+Ist \fatsf{$h_{1}(n)$} und \fatsf{$h_{2}$(n)} zulässig, dann ist
+\[
+    h(n) = max\{h1(n), h2(n), ..., hm(n)\}
+\]
+ebenfalls zulässig und dominiert alle Einzelheuristiken
+\subsection{Optimalität von A*-Suche}
+Ist A* optimal?
+Ja, falls \fatsf{h(n)} zulässig ist, liefert A* mit Tree-Search eine optimale Lösung\\
+\fatsf{Warum ist das so?}\\
+Angenommen, A* wählt einen Pfad \fatsf{p}, dann ist dieser auch der kürzeste (niedrigste Kostenpfad)
+\subsection{Informierte Baumsuchstrategien}
+\subsubsection*{Drei Alternativen zu A*: Speicherbegrenzte heuristische Suche}
+\fatsf{Problem:} A* (und Best-First-Suche) benötigen zu viel Speicherplatz\\
+Drei Ansätze zur Lösung dieses Problems:
+\begin{enumerate}
+    \item \fatsf{Iterative Deepening A* (IDA*)}
+    \begin{itemize}
+        \item Ähnlich zur iterativen Tiefensuche
+        \item Der Abbruch erfolgt nicht anhand der Tiefe, sondern anhand der \fatsf{f-Kosten (f = g + h)}
+    \end{itemize}
+    \item \fatsf{Rekursiver Best-First-Suche (RBFS)}
+    \begin{itemize}
+        \item Ein rekursiver Algorithmus, der das Verhalten der Best-First-Suche mit \fatsf{linearem Speicherbedarf} nachahmt
+        \item Behält den \fatsf{f-Wert} der besten Alternative auf dem aktuellen Pfad im Speicher
+        \item Aktualisiert Heuristikwerte basierend auf den Nachfolgern
+    \end{itemize}
+    \item \fatsf{(Simple) Memory-bounded A* ((S)MA*)}
+    \begin{itemize}
+        \item Entfernt den schlechtesten Blattknoten, wenn der Speicher voll ist
+        \item Der Wert des entfernten Knotens wird an den Elternknoten weitergegeben
+        \item Möglicherweise muss der Knoten später erneut untersucht werden
+    \end{itemize}
+\end{enumerate}
+\subsubsection*{Graphensuche}
+\fatsf{Warum ist das wichtig?}\\
+Ohne Erkennung bereits besuchter Zustände kann ein \fatsf{lineares Problem exponentiell} schwer werden!
+\fatsf{Besipiele:}
+\begin{itemize}
+    \item \fatsf{Bandstruktur (Ribbon):} Jeder Zustand hat zwei Verbindungen
+    \item \fatsf{Gitterstruktur (Grid):} Jeder Zustand hat vier Verbindungen
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Uninformed and Informed Search Images/Graph Search.jpeg}
+\end{figure}
+\fatsf{Lösung:}
+\begin{itemize}
+    \item Speichern bereits besuchter Zustände in einer \fatsf{Liste} (Speicher-Tradeoff)
+    \item Beispiel: Der \fatsf{Dijkstra-Algorithmus} ist die graphensuchbasierte Variante der uniformen Kostensuche
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Uninformed and Informed Search Images/Graph Search Tree Search.jpeg}
+\end{figure}
+\subsubsection*{Baumsuche vs. Graphensuche}
+\fatsf{Baumsuche:}
+\begin{itemize}
+    \item Jeder Knoten im Suchbaum repräsentiert \fatsf{einen möglichen Pfad} zum entsprechenden Zustand
+    \item Beispiel: Von \fatsf{Arad nach Sibiu} gibt es direkte sowie indirekte Wege über andere Städte
+\end{itemize}
+\fatsf{Problem:}
+\begin{itemize}
+    \item Ein später gefundener Pfad kann besser (kostengünstiger) sein als ein früher gefundener 
+    \item Bereits gefundene Pfade müssen mit dem neuen, günstigeren Pfad erneut geprüft werden
+\end{itemize}
+\fatsf{Zwei Lösungen:}
+\begin{enumerate}
+    \item \fatsf{Erkennung wiederholter Zustände hinzufügen $\rightarrow$ Graphensuche}
+    \begin{itemize}
+        \item Allgemeine Lösung, die für \fatsf{BFS, DFS usw.} funktioniert
+    \end{itemize}
+    \item \fatsf{Sicherstellen, dass der günstigere Pfad zuerst untersucht wird $\rightarrow$ Konsistente Heuristiken}
+    \begin{itemize}
+        \item Spezifische Lösung für A*
+    \end{itemize}
+\end{enumerate}
+\subsection{Zulässige Heuristiken: 8-Puzzle}
+\fatsf{Beispiele für zulässige Heuristiken:}
+\begin{itemize}
+    \item \fatsf{hMIS(n) = Anzahl der fehlplatzierten Kacheln}
+    \begin{itemize}
+        \item zulässig, weil jede fehlplatzierte Kachel mindestens einmal bewegt werden muss
+    \end{itemize}
+    \item \fatsf{hMAN(n) = Gesamt-Manhattan-Distanz}
+    \begin{itemize}
+        \item Summe der Schritte, die jeder Kachel benötigt, um ihre Zielposition zu erreichen
+        \item Zulässig, da dies die \fatsf{minimalen möglichen Bewegungen} angibt
+    \end{itemize}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{Uninformed and Informed Search Images/Admissible Heuristics 8 Puzzle.jpeg}
+\end{figure}

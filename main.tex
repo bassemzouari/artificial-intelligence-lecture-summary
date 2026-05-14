@@ -1,0 +1,51 @@
+\documentclass[
+    ngerman,
+    color=11b,
+    % dark_mode, 
+    loadcommon, % Loads a list of commonly used Packages
+    summary,
+    boxarc,
+    main,
+    % manual_term,
+    % solution=true,
+]{rubos-tuda-template}
+
+
+\title[EIKI]{Einführung in der Künstliche Intelligenz}
+\subtitle{Zusammenfassung}
+\semester{Wise 2023/2024}
+\department{Informatik}
+\author{Bassem Zouari}
+\date{\today}
+\version{1.0}
+\termOrder{printAuthor,printSemester,%
+printVersion,,,printDate,printDepartment}
+
+\ConfigureHeadline{
+	headline={summary-centered}
+}
+
+\begin{document}
+
+%--Titelseite--
+\maketitle{}
+\tableofcontents %Inhaltsverzeichnis
+\clearpage
+%---Beginn Der Zusammenfassung---%
+
+%Kapitel Laden
+% Dieser Ansatz lässt keine preview von LaTeX-Workshop zu
+%\foreach \kapitelnr in {1,...,8}{
+%    \input{Kapitel/Kapitel_\kapitelnr/Kapitel_\kapitelnr}
+%}
+%Dieser schon
+\input{Einführung zur KI}
+\clearpage
+\input{KI-Systeme}
+\clearpage
+\input{Uninformed and Informed Search}
+\clearpage
+\input{Local Search and Adversarial Search}
+\clearpage
+\input{Contraint Satisfaction Problems}
+\end{document}

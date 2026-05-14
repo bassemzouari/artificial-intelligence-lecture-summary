@@ -1,0 +1,370 @@
+\section{KI-Systeme}
+\subsection{Was ist ein KI-System?}
+Ein \fatsf{KI-System} kann als Untersuchung \fatsf{rationaler Agenten} und ihrer \fatsf{Umgebungen} definiert werden\\
+Es besteht aus zwei Hauptkomponenten:
+\begin{enumerate}
+    \item \fatsf{Umgebung}
+    \item \fatsf{Agent}
+\end{enumerate}
+\subsection{Was ist eine Umgebung?}
+\begin{itemize}
+    \item \fatsf{Definition laut Oxford Dictionary:}\\
+    \enquote{Eine Umgebung ist die Umgebung oder die Bedingungen, in denen eine Person, ein Tier oder eine Pflanze lebt oder agiert}
+    \item \fatsf{In der KI:}
+    \begin{itemize}
+        \item Eine Umgebung ist das Umfeld eines \fatsf{KI-Agenten} und der Ort, an dem er agiert
+        \item Sie muss nicht real sein - sie kann auch \fatsf{künstlich} sein
+    \end{itemize}
+\end{itemize}
+\fatsf{Beispiele für Umgebungen:}
+\begin{itemize}
+    \item \fatsf{Autonomes Fahren:} Straßen, Verkehr, Wetter, Verkehrsschilder, Fußgänger ...
+    \item \fatsf{Schach:} Schachbrett, Schachfiguren ...
+\end{itemize}
+\subsection{Merkmale von Umgebungen}
+\subsubsection*{Umgebungen lassen sich anhand verschiedener Dimensionen charakterisieren}
+\begin{infoBox}[title=Diskrete Umgebung]
+    In einer diskreten Umgebung gibt es eine begrenzte Anzahl von klaren, getrennten Zuständen oder Aktionen, die der Agent durchführen kann.
+\end{infoBox}
+\begin{infoBox}
+    \fatsf{Beispiel:} Schach ist diskret, weil es eine feste Anzahl von Spielfeldern und möglichen Zügen gibt. Jeder Zug ist ein klar definierter Schritt von einem Feld zum anderen.
+\end{infoBox}
+\begin{infoBox}[title=Kontinuierliche Umgebung]
+    In einer kontinuierlichen Umgebung gibt es eine unendliche Anzahl von möglichen Zuständen oder Aktionen, oft durch fließende Veränderungen beschrieben.
+\end{infoBox}
+\begin{infoBox}
+    \fatsf{Beispiel:} Autofahren ist kontinuierlich, da man die Geschwindigkeit, den Winkel des Lenkrads oder die Position des Autos jederzeit in sehr kleinen, fließenden Schritten anpassen kann.
+\end{infoBox}
+\begin{infoBox}[title=Beobachtbar]
+    Der Agent hat vollständigen Zugriff auf alle relevanten Informationen über den Zustand der Umgebung. Es gibt keine versteckten Details, sodass der Agent jede Entscheidung auf vollständigem Wissen basieren kann.\\
+    \fatsf{Beispiel:} Schach - jeder Spieler sieht das gesamte Schachbrett und alle Figuren jederzeit.
+\end{infoBox}
+\begin{infoBox}[title=Teilweise Beobachtbar]
+    \fatsf{Beispiel:} Autofahren - Ein autonomes Fahrzeug kann zwar seine Umgebung durch Sensoren wahrnehmen, hat jedoch keine vollständige Information über z.B. versteckte Fußgänger oder das Verhalten anderer Fahrer.
+\end{infoBox}
+\begin{infoBox}[title=Nicht Beobachtbar]
+    \fatsf{Beispiel:} Ein Agent in einem dunklen Raum ohne Sensoren kann keine Information über seine Umgebung erhalten und handelt \enquote{blind}.
+\end{infoBox}
+\begin{infoBox}[title=Statisch]
+    Die Umgebung bleibt gleich, bis der Agent eine Aktion ausführt. Sie verändert sich nicht von alleine.\\
+    \fatsf{Beispiel:} Schach - Das Schachbrett bleibt unverändert, wenn kein Spieler einen Zug macht.
+\end{infoBox}
+\begin{infoBox}[title=Dynamisch]
+    Die Umgebung kann sich ohne Aktionen des Agenten verändern. Andere Einflüsse oder Agenten können die Umgebung beeinflussen\\
+    \fatsf{Beispiel:} Autofahren - Die Umgebung (z.B. andere Fahrzeuge oder Wetterbedingungen) verändert sich kontinuierlich, unabhängig davon, was der Fahrer tut.
+\end{infoBox}
+\begin{infoBox}[title=Einzelagent]
+    In dieser Umgebung gibt es nur einen Agenten, der Entscheidungen trifft und agiert. Der Agent beeinflusst seine Umgebung, ohne dass andere aktive Agenten daran beteiligt sind.\\
+    \fatsf{Beispiel:} Ein Puzzle-Spiel, bei dem der Spieler das Rätsel allein lösen muss.
+\end{infoBox}
+\begin{infoBox}[title=Mehragenten]
+    Hier gibt es mehrere Agenten, die miteinander interagieren und sich gegenseitig beeinflussen. Jeder Agent muss die Aktionen und Ziele der anderen berücksichtigen.\\
+    \fatsf{Beispiel:} Fußballspieler - Jeder Spieler ist ein Agent, und die Aktionen eines Spielers beeinflussen die anderen Spieler und das gesamte Spielgeschehen.
+\end{infoBox}
+\begin{infoBox}[title=Zugänglich]
+    Der Agent hat vollständigen Zugriff auf alle relevanten Informationen über die Umgebung und deren Zustand. Alles, was für Entscheidung wichtig ist, ist dem Agenten bekannt und zugänglich.\\
+    \fatsf{Beispiel:} Schach - Der Agent (Spieler) kann das gesamte Schachbrett und alle Figuren sehen und kennt alle Regeln und möglichen Züge.
+\end{infoBox}
+\begin{infoBox}[title=Unzugänglich]
+    Der Agent hat keinen vollständigen Zugriff auf alle relevanten Informationen. Einige Aspekte der Umgebung sind unbekannt oder verborgen, was zu Unsicherheiten in den Entscheidungen führt.\\
+    \fatsf{Beispiel:} Ein Roboter in einem unbekannten Gebäude - Der Roboter kann nur das sehen, was seine Sensoren erfassen, und hat möglicherweise keine Informationen über die genaue Struktur oder Hindernisse in anderen Räumen.
+\end{infoBox}
+\begin{infoBox}[title=Deterministische vs. Nicht-deterministische/Stochastische Umgebung]
+    \fatsf{Deterministisch:} Der nächste Zustand der Umgebung ist vollständig vorhersahbar und wird nur durch den aktuellen Zustand und die Aktionen des Agenten bestimmt. Es gibt keine Zufälligkeit - jede Aktion hat ein festes, vorhersehbares Ergebnis.\\
+    \fatsf{Beispiel:} Schach - Wenn ein Spieler einen bestimmten Zug macht, führt dieser immer zu demselben Ergebnis. Es gibt keine Zufallsfaktoren im Spiel.
+\end{infoBox}
+\begin{infoBox}[title=Nicht-deterministisch/Stochastisch]
+    Der nächste Zustand nicht vollständig vorhersehbar, da Zufall oder unbekannte Einflüsse eine Rolle spielen. Die gleiche Aktion kann zu unterschiedlichen Ergebnisse führen.\\
+    \fatsf{Beispiel:} Wettervorhersage - Selbst wenn der Agent (ein Modell) dieselben Daten analysiert, können die zukünftigen Wetterbedingungen unterschiedlich ausfallen, da das Wetter von vielen zufälligen und komplexen Faktoren abhängt.
+\end{infoBox}
+\begin{infoBox}[title=Defference between Accessible and Observable]
+    Eine \fatsf{zugängliche} Umgebung stellt Informationen bereit, aber diese sind möglicherweise nicht sofort sichtbar oder messbar für den Agenten. Eine \fatsf{beobachtbare} Umgebung bedeutet, dass der Agent direkt alles wahrnimmt, was für Entscheidungen relevant ist.\\
+    \fatsf{Beispiel:} Ein autonomes Auto fährt in einer Stadt. Die Umgebung ist \fatsf{zugänglich}, weil theoretisch alle wichtigen Informationen (wie Verkehrsschilder, andere Fahrzeuge) verfügbar sind. Sie sind jedoch \fatsf{nicht vollständig beobachtbar}, da das Auto z.B. Fußgänger hinter Hindernissen oder plötzlich auftauchende Fahrzeuge nicht immer direkt sehen kann.
+\end{infoBox}
+\begin{infoBox}[title=Episodisch]
+    Die Umgebung besteht aus unabhängigen \enquote{Episoden}. Jede Entscheidung betrifft nur die aktuelle Situation und hat keinen Einfluss auf zukünftige Entscheidungen oder Zustände. Die Handlungen des Agenten sind also jeweils in sich abgeschlossen.\\
+    \fatsf{Beispiel:} Bildklassifikation - Ein System, das Objekte in Bildern erkennt, analysiert jedes Bild separat. Das Ergebnis eines Bildes beeinflusst die Klassifikation des nächsten nicht.
+\end{infoBox}
+\begin{infoBox}[title=Nicht-Episodisch/Sequenziell]
+    Hier hängen die Entscheidungen voneinander ab. Jede Handlung des Agenten wirkt sich auf zukünftige Zustände aus, udn er muss auch frühere Aktionen berücksichtigen.\\
+    \fatsf{Beispiel:} Schach - Jeder Zug beeinflusst das gesamte Spiel, und jede Entscheidung basiert auf dem bisherigen Spielverlauf und hat Auswirkungen auf zukünftige Züge.
+\end{infoBox}
+\begin{defBox}[title=Warum ist das wichtig? (Es geht weniger um die \enquote{konkrete Klassifikation})]
+    \begin{itemize}
+        \item \fatsf{Verschiedene Umgebungen erfordern unterschiedliche Agenten}
+        \item \fatsf{Nicht jeder Algorithmus funktioniert in jeder Umgebung}
+        \begin{itemize}
+            \item Einige Algorithmen sind ungeeignet für Umgebungen mit \fatsf{Unsicherheiten} und benötigen stattdessen \fatsf{perfekte Informationen}
+        \end{itemize}
+    \end{itemize}
+\end{defBox}
+\subsubsection*{Einfach vs. Schwierige Umgebungen}
+\begin{minipage}{0.5\textwidth}
+    \begin{defBox}[title=Szenario 1:]
+        \fatsf{Statisch:}
+        \begin{itemize}
+            \item Die Umgebung verändert sich nicht (keine Berücksichtigung möglicher Veränderungen)
+        \end{itemize}
+        \fatsf{Vollständig beobachtbar:}
+        \begin{itemize}
+            \item Der Anfang ist bekannt
+        \end{itemize}
+        \fatsf{Diskret:}
+        \begin{itemize}
+            \item Mögliche Aktionen sind begrenzt und können aufgezählt werden
+        \end{itemize}
+        \fatsf{Deterministisch}
+        \begin{itemize}
+            \item Die gleiche Aktion führt immer zum gleichen Ergebnis
+        \end{itemize}
+    \end{defBox}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \begin{defBox}[title=Szenario 2:]
+        \fatsf{Dynamisch:}
+        \begin{itemize}
+            \item Die Umgebung ändert sich kontinuierlich, auch ohne dass der Agent handelt
+        \end{itemize}
+        \fatsf{Teilweise beobachtbar:}
+        \begin{itemize}
+            \item Der aktuelle Zustand ist nicht immer vollständig bekannt
+        \end{itemize}
+        \fatsf{Kontinuierlich:}
+        \begin{itemize}
+            \item Es gibt unendlich viele mögliche Zustände oder Aktionen
+        \end{itemize}
+        \fatsf{Stochastisch:}
+        \begin{itemize}
+            \item Die gleiche Aktion kann mehrfach im gleichen Zustand ausgeführt werden, führt aber zu unterschiedlichen Ergebnissen
+        \end{itemize}
+    \end{defBox}
+\end{minipage}
+\begin{center}
+    \blue{Was ist realistischer? Was ist einfacher?}
+\end{center}
+\begin{itemize}
+    \item \fatsf{Realistisch:} Szenario 2
+    \item \fatsf{Einfacher:} Szenario 1
+\end{itemize}
+
+\clearpage
+\subsection{Was ist ein Agent?}
+Ein \fatsf{KI-System} kann als die Untersuchung von \fatsf{(rationalen Agenten)} und ihren \fatsf{Umgebungen} definiert werden\\
+Ein \fatsf{Agent:}
+\begin{itemize}
+    \item \fatsf{nimmt} seine Umgebung wahr (Sense)
+    \item \fatsf{trifft} autonome Entscheidungen (Think)
+    \item \fatsf{handelt} in der Umgebung (Act)
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Agent.jpeg}
+\end{figure}
+\fatsf{Regeln für KI-Agenten}
+\begin{enumerate}
+    \item Ein Agent muss in der Lage sein, seine Umgebung wahrzunehmen
+    \item Die Beobachtung der Umgebung müssen genutzt werden, um Entscheidungen zu treffen
+    \item Die getroffenen Entscheidungen sollten zu einer Handlung führen
+    \item (Die Handlung des Agenten muss rational sein)
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Agent 2.jpeg}
+\end{figure}
+
+\fatsf{Beispiele für Agenten:}
+\begin{enumerate}
+    \item \fatsf{Menschen:}
+    \begin{itemize}
+        \item Nehmen die Welt mit Augen, Ohren und anderen Sensoren wahr
+        \item Denken mit dem Kopf
+        \item Handeln mit Händen, Beinen, dem Stimmtrakt und anderen Aktuatoren
+    \end{itemize}
+    \item \fatsf{Roboter}
+    \begin{itemize}
+        \item Nehmen die Welt mit Kameras, Infrarotsensoren und anderen Sensoren wahr
+        \item Treffen Entscheidungen basierend auf Eingaben, Regeln oder eine Programm
+        \item Handeln mit Motoren als Aktuatoren
+    \end{itemize}
+    \item \fatsf{Weitere Agenten} (z.B. Software-Agenten, autonome Fahrzeuge, etc.)
+\end{enumerate}
+
+\subsection{Das Problem der Rationalität}
+\fatsf{Zusammenfassung: Rasionale Handlungen}
+\begin{itemize}
+    \item Eine Handlung ist rational, wenn sie die Leistung maximiert und das bestmögliche Ergebnis für den Agenten liefert
+    \item Ein rationaler Agent ist ein Agent, der das \enquote{richtige} tut
+\end{itemize}
+\fatsf{Was ist das richtige?}
+\begin{itemize}
+    \item \fatsf{Vorsicht!} Rationale Agenten sind nicht allwissend
+    \begin{itemize}
+        \item Ein allwissender Agent würde das tatsächliche Ergebnis seiner Handlungen kennen
+    \end{itemize}
+    \item Rationale Agenten sind nicht perfekt
+    \begin{itemize}
+        \item Rationalität maximiert die \fatsf{erwartete} Leistung
+        \item Das bedeutet nicht, dass es immer zum optimalen Ergebnis führt
+        \item \fatsf{Beispiel:} Im Lotto zu spielen hat eine negative erwartete Rendite, daher wäre es besser, nicht zu spielen, aber ...
+    \end{itemize}
+\end{itemize}
+\fatsf{Wie misst man die Leistung?}
+\begin{itemize}
+    \item Eine Funktion, die eine Folge von Handlungen bewertet
+    \item \fatsf{Aufgabenabhängig:} Ein Staubsauger hat andere Leistungskriterien als ein selbstfahrendes Auto
+\end{itemize}
+\fatsf{Allgemeine Regel für die Gestaltung einer Leistungsbewertung:}
+\begin{itemize}
+    \item Gestalte die Leistungsbewertung basierend auf dem gewünschten Ergebnis, nicht auf dem gewünschten Verhalten des Agenten
+\end{itemize}
+\fatsf{Mögliche Leistungsbewertungskriterien:}
+\begin{itemize}
+    \item \fatsf{Staubsauger:} Sauberkeit der Böden, Energieeffizienz, Reinigungszeit, Geräuschpegel, ...
+    \item \fatsf{Selbstfahrendes Auto:} Sicherheit, Komfort, Zeit-Effizienz, Routenplanung, ...
+\end{itemize}
+\clearpage
+\subsection{Arten von Agenten}
+\subsubsection*{Reflex-Agent}
+\begin{itemize}
+    \item \fatsf{Beschreibung:}\\
+    Ein Reflex-Agent wählt seine Handlungen ausschließlich auf der Grundlage der aktuellen Wahrnehmung und ignoriert die Geschichte der Wahrnehmungen
+    \begin{itemize}
+        \item Implementiert durch \fatsf{Bedingung-Aktions-Regeln}, d.h. \enquote{Zustand wird einer Handlung zugeordnet}
+        \item Ein Reflex-Agent ist ein schlechter Schachspieler, da er nur den letzten Zug betrachtet und kein explizites Ziel verfolgt, wie z.B. das Gewinnen des Spiels
+    \end{itemize}
+    \item \fatsf{Problem:}
+    \begin{itemize}
+        \item Sehr begrenzte Entscheidungsfähigkeit
+        \item Keine Kenntnis über Dinge, die der Agent nicht aktiv wahrnehmen kann
+        \item Kann in komplexen Umgebungen schwer zu handhaben sein (Speicherung, Aktualisierung, ...)
+    \end{itemize}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Reflex Agent.jpeg}
+\end{figure}
+\clearpage
+\subsubsection*{Modell-basierter Agent}
+\begin{itemize}
+    \item \fatsf{Beschreibung:}\\
+    Modellbasierte Agenten stellen eine Weiterentwicklung einfacher Reflexagenten dar, indem sie ein internes Modell der Umwelt verwenden. Dieses Modell ermöglicht es den Agenten, die Auswirkungen ihrer Handlungen vorherzusagen und dadurch fundiertere Entscheidungen zu treffen. Im Gegensatz zu einfachen Reflexagenten, die ausschließlich auf aktuelle Wahrnehmungen reagieren, können modellbasierte Agenten vergangene Wahrnehmungen speichern und nutzen, um verborgene oder nicht direkt beobachtbare Aspekte der Umgebung zu berücksichtigen.\\
+    Dadurch sind sie in der Lage, auch in komplexen oder teilweise beobachtbaren Umgebungen effektiv zu agieren und sich an Veränderungen in ihrer Umwelt anzupassen.
+    \item \fatsf{Beispiel:}\\
+    Ein autonomes Fahrsystem reagiert nicht nur auf die momentanen Straßenverhältnisse, sondern berücksichtigt auch sein internes Wissen über Verkehrsregeln, Straßenkarten und vergangene Erfahrungen, um sicher und effizient zu navigieren
+    \item \fatsf{Merkmale modellbasierter Reflexagenten:}
+    \begin{itemize}
+        \item \fatsf{Adaptiv:} Erhält ein internes Modell der Umgebung, das zukünftige Zustände vorhersagen hilft und eine situationsangemessene Reaktion ermöglicht
+        \item \fatsf{Kontextverständnis:} Verknüpft aktuelle Wahrnehmungen mit historischen Daten, undifferenzierte und kontextabhängige Entscheidungen zu treffen
+        \item \fatsf{Erhöhter Rechenaufwand:} Der Aufbau, die Pflege und die Nutzung des internen Modells erfordern zusätzliche Rechenressourcen, was zu einer höheren Komplexität führt
+        \item \fatsf{Höhere Leistungsfähigkeit:} Durch die Nutzung von Erfahrungen und Umweltwissen können modellbasierte Reflexagenten deutlich komplexere Aufgaben bewältigen als einfache Reflexagenten
+    \end{itemize}
+    \item \fatsf{Problem:}
+    \begin{itemize}
+        \item Wie wirken sich meine Handlungen auf die Welt aus?
+        \item Welches Weltmodell sollte ich verwenden?
+    \end{itemize}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{KI-Systeme Images/Model-based Agent.jpeg}
+\end{figure}
+\clearpage
+\subsubsection*{Ziel-basierter Agent}
+\begin{itemize}
+    \item \fatsf{Beschreibung:}\\
+    Diese Agenten bauen auf den Informationen auf, die ein modell-basierter Agent speichert, wissen jedoch zusätzlich, welche Zustande wünschenswert sind und werden entsprechend versuchen, Handlungen auszuwählen
+    \begin{itemize}
+        \item Der Agent weiß, welche Zustände erstrebenswert sind und trifft Entscheidungen, die darauf abzielen, diese Zustände zu erreichen
+        \item Der Hauptunterschied zu den vorherigen Ansätzen ist, dass Ziel-basierte Agenten Entscheidungsprozesse einbeziehen, wie z.B. \enquote{Was passiert, wenn ich dies oder das tue?} oder \enquote{Was macht mich glücklich}
+    \end{itemize}
+    \item \fatsf{Problem:}
+    \begin{itemize}
+        \item Die Dinge werden schwierig, wenn lange Aktionssequenzen erforderlich sind, um ein Ziel zu finden oder zu erreichen
+    \end{itemize}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Goal-based-Agent.jpeg}
+\end{figure}
+\clearpage
+\subsubsection*{Nutzen-basierter Agent}
+\begin{itemize}
+    \item \fatsf{Beschreibung:}\\
+    Nutzen-basierte Agenten verwenden eine \fatsf{Nutzerfunktion}, um jede Aktion oder jedes Szenario zu bewerten und seine Entscheidung zu treffen
+    \begin{itemize}
+        \item Im Gegensatz zu Zielen, die eine binäre Unterscheidung treffen (Erreichen oder Nicht-Erreichen), bietet eine Nutzenfunktion eine kontinuierliche Skala
+        \item Kann bei der Auswahl zwischen sich widersprechenden Zielen helfen (z.B. ist Geschwindigkeit oder Sicherheit verfügbar?)
+        \item Bestimmte Ziele können auf verschiedene Arten erreicht werden (\enquote{Alle Wege führen nach Rom} - einige sind schneller oder zuverlässiger und haben einen höheren Nutzen)
+    \end{itemize}
+    \item \fatsf{Nutzenfunktion:}
+    \begin{itemize}
+        \item Ordnet einem Zustand oder einer Zustandssequenz eine reale Zahl zu
+    \end{itemize}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Utility-based Agent.jpeg}
+\end{figure}
+\clearpage
+\subsubsection*{Lernender Agent}
+Lernende Agenten verwenden ein zusätzlicher \fatsf{Lernelement}, um sich im Laufe der Zeit zu verbessern und immer mehr über ihre Umgebung zu erfahren
+\begin{itemize}
+    \item Ein lernender Agent kann aus seinen vergangenen Erfahrungen lernen und sich automatisch anpassen
+    \item Er ist robuster gegenüber unbekannten Umgebungen
+    \item Ein lernender Agent besteht aus vier konzeptionellen Komponenten:
+    \begin{enumerate}
+        \item \fatsf{Lernelement:} Verantwortlich für die Verbesserung durch Lernen aus der Umgebung
+        \item \fatsf{Kritiker:} Gibt Feedback und beschreibt, wie gut der Agent in Bezug auf eine festgelegte Messung abschneidet
+        \item \fatsf{Leistungs-Element:} Verantwortlich für die Auswahl von Handlungen
+        \item \fatsf{Problemgenerator:} Verantwortlich für das Vorschlagen von Handlungen, die zu neuen Erfahrungen führen
+    \end{enumerate}
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Lerning Agent.jpeg}
+\end{figure}
+\clearpage
+\subsection{Wie man Agenten intelligent macht}
+Intelligente Agenten treffen intelligente Handlungen ... aber wie entscheiden wir, was eine intelligente Handlung ist und wie wählen wir diese aus?\\
+\fatsf{Ansätze zur Intelligenzsteigerung von Agenten:}
+\begin{itemize}
+    \item Suchalgorithmen
+    \item Verstärkendes Lernen (Reinforcement Learning)
+    \item Genetische Algorithmen
+    \item ...
+\end{itemize}
+\subsubsection*{Suchalgorithmen}
+\begin{itemize}
+    \item Um \enquote{eine gute Handlung zu finden} zu verstehen und als \fatsf{Suchproblem} zu definieren, werden Suchalgorithmen eingesetzt
+    \item \fatsf{Spoiler:} Die gängigsten Suchalgorithmen basieren auf \fatsf{Bäumen} (z.B. Tiefensuche und Breitensuche)
+    \begin{itemize}
+        \item \fatsf{Breitensuche} ist jedoch kein Baumalgorithmus, sondern ein gruppenbasierter Algorithmus
+    \end{itemize}
+\end{itemize}
+\subsubsection*{Reinforcement Learning}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{KI-Systeme Images/Reinforcement Learning.jpeg}
+\end{figure}
+\begin{itemize}
+    \item Entwickelt im Bereich der \fatsf{Psychologie}
+    \item \fatsf{Trial and Error:} Handlungen werden basierend auf Erfahrungen und Beobachtungen ausgewählt
+    \item \fatsf{Verstärkungslernprozess:} Der Agent lernt durch Belohnungen und Bestrafungen, welche Handlungen vorteilhaft oder nachteilig sind
+\end{itemize}
+\subsubsection*{Reinforcement Learning Loop}
+\begin{itemize}
+    \item Der Agent nimmt Wahrnehmungen wahr und führt Handlungen aus, die ihm entweder Belohnungen oder Strafen einbringen. Die gesammelten Erfahrungen verbessern das Verhalten des Agenten mit der Zeit
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{KI-Systeme Images/Reinforcement Learning Loop.jpeg}
+\end{figure}
+\subsubsection*{Genetische Algorithmen}
+\begin{itemize}
+    \item Inspiriert von Charles Darwins Theorie der \fatsf{natürlichen Selektion}
+    \item \fatsf{Überleben des Stärkeren:} Eine Population von möglichen Lösungen wird erzeugt, und durch \fatsf{Mutation, Kreuzung} und \fatsf{Auslese} entwickelt der Algorithmus die besten Lösungen, ähnlich der natürlichen Evolution
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{KI-Systeme Images/Genetic Algorithms.jpeg}
+\end{figure}

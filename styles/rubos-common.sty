@@ -1,0 +1,1051 @@
+\NeedsTeXFormat{LaTeX2e}
+\RequirePackage{expl3}
+\ProvidesExplPackage{rubos-common}{2025-02-11}{1.1.0-Snapshot}{Common Definitions for all Rubos templates}
+% Package Made by Ruben Deisenroth, 2022
+% Available at https://github.com/Rdeisenroth/Rubos-TUDA-Template/blob/main/tex/rubos-common.sty
+
+\RequirePackage{l3keys2e}
+\RequirePackage{amsmath}
+\RequirePackage{amsthm}
+\RequirePackage{xfp}
+\RequirePackage{xstring}
+\PassOptionsToPackage{table, dvipsnames, svgnames}{xcolor} % Option has to be set before loading TuDaExercise
+\RequirePackage{xcolor}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins}
+\RequirePackage{tikz}
+\ExplSyntaxOff
+\usetikzlibrary{shapes.geometric,calc,arrows.meta}
+\RequirePackage{listings}
+% \RequirePackage{fontawesome} % TODO: Klassenoption
+
+\ExplSyntaxOn
+
+% Package Options
+\prop_gclear_new:N \g_rubos_document_opts_prop
+\keys_define:nn {rubos/common} {
+    boxarc .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {boxarc} {#1},
+    boxarc .initial:n = {0pt},
+    boxarc .default:n = {3pt},
+    fopslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {fopslides} {#1},
+    fopslides .initial:n = {},
+    fopslides .default:n = {},
+    audslides .code:n = \prop_gput:Nnn \g_rubos_document_opts_prop {audslides} {#1},
+    audslides .initial:n = {},
+    audslides .default:n = {},
+    dark_mode .code:n = {\PassOptionsToPackage{enable=#1}{darkmode}},
+    dark_mode .initial:n = false,
+    dark_mode .default:n = true,
+    fancy_row_color .bool_gset:N = \g_ptxcd_ex_fancy_rowcolor_bool,
+    fancy_row_color .initial:n = false,
+    fancy_row_color .default:n = true,
+    minted_workaround .bool_gset:N = \g_rubos_minted_workaround_bool,
+    minted_workaround .initial:n = false,
+    minted_workaround .default:n = true,
+    caption_workaround .code:n = \cs_undefine:c {abovecaptionskip}\cs_undefine:c {belowcaptionskip}\cs_undefine:c {@makecaption},
+    shell_escape .bool_gset:N = \g_rubos_shell_escape_bool,
+    shell_escape .initial:n = true,
+    shell_escape .default:n = true,
+    main .bool_gset:N = \g_rubos_is_main_file_bool,
+    main .initial:n = false,
+    main .default:n = true,
+    extlblprefix .tl_gset:N = \g_rubos_external_label_prefix_tl,
+    extlblprefix .initial:n = {ext:},
+    extlblprefix .default:n = {ext:},
+}
+
+\ProcessKeysOptions{rubos/common}
+
+\RequirePackage{darkmode}
+
+%%--Color Definitions--%%
+\definecolor{arrowgreen}{RGB}{0, 165, 79}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{bashcodebg}{rgb}{0.85,0.85,0.85}
+\definecolor{clight2}{RGB}{212, 237, 244}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codebg}{RGB}{22,43,58}
+\definecolor{rubos@anthrazitgrau}{HTML}{293133}
+\definecolor{tableblue}{RGB}{107, 207, 246}
+\definecolor{tablegreen}{RGB}{207, 228, 174}
+\definecolor{tablered}{RGB}{255, 191, 191}
+\definecolor{tableyellow}{RGB}{255, 250, 193}
+\colorlet{fgcolor}{black}
+
+\prg_new_conditional:Nnn \__rubos_if_shell_escape: {T,F,TF} {
+    \bool_if:NTF \g_rubos_shell_escape_bool
+    {\sys_if_shell_unrestricted:TF
+        {\prg_return_true:}
+        {\prg_return_false:}
+    }
+    {\prg_return_false:}
+}
+
+\cs_set_eq:NN\IfShellEscapeT \__rubos_if_shell_escape:T
+\cs_set_eq:NN\IfShellEscapeF \__rubos_if_shell_escape:F
+\cs_set_eq:NN\IfShellEscapeTF \__rubos_if_shell_escape:TF
+
+% DARK_MODE environment check (enable if DARK_MODE=1)
+\sys_get_shell:nnN { kpsewhich ~ --var-value ~ DARK_MODE } { } \l_dark_mode_env_var_tl
+\tl_trim_spaces:N \l_dark_mode_env_var_tl
+\tl_if_eq:NnT \l_dark_mode_env_var_tl {1} {\enabledarkmode{}}
+\tl_if_eq:NnT \l_dark_mode_env_var_tl {2} {\enabledarkmode{}\pagecolor{black}}
+\tl_if_eq:NnT \l_dark_mode_env_var_tl {0} {\disabledarkmode{}}
+
+\IfDarkModeT{
+    \colorlet{fgcolor}{white}
+}
+
+% Count the amount of zeroes needed
+\NewExpandableDocumentCommand{\__padzeroes_count:nn} {m m}
+{
+    \int_compare:nTF { #1 < 1 } { 0 } {
+        \int_compare:nTF { #2 = 0 }
+        { \int_compare:nTF { #1 > 1 } { 1 } { 0 } }
+        {
+            \int_compare:nTF { #2 < \fpeval { 10 ** ( #1 - 1 ) } }
+            { \fpeval{1 + \__padzeroes_count:nn { #1 - 1 } {#2} } }
+            { 0 }
+        }
+    }
+}
+
+% Zero Padding (Pads Number with the wanted amount of zeros)
+\NewExpandableDocumentCommand{\padzeroes}{O{2}m}
+{
+    \prg_replicate:nn { \__padzeroes_count:nn {#1} {#2} } {0} \fpeval{#2}
+}
+
+
+% Just a basic recursion test
+\DeclareDocumentCommand{\rubosfib}{m}{
+    \int_compare:nTF{#1 < 2}
+    {
+        #1
+    }{
+        \int_eval:n {\rubosfib{\int_eval:n {#1 - 1}} + \rubosfib{\int_eval:n {#1 - 2}}}
+    }
+}
+
+% \DeclareDocument
+% #1: starred variant - if true, a description can be defined
+% #2: Property Name
+% #3: Default Value
+% #4: Print Text (use * for value)
+\DeclareDocumentCommand{\DeclareDocumentProperty}{s m o o }{
+    \tl_gclear_new:c {g_rubos_document_#2_tl}
+    \tl_gclear_new:c {
+        print
+        \str_uppercase:f { \tl_head:n {#2} }
+        \tl_tail:n {#2}
+    }
+    % Get Property Command
+    \exp_args:Nc \DeclareDocumentCommand{get\str_uppercase:f { \tl_head:n {#2} }\tl_tail:n {#2}}{sm}{
+        \bool_if:NTF ##1 {
+            \tl_use:c {g_rubos_document_#2_description_tl}
+        } {
+            \tl_use:c {g_rubos_document_#2_tl}
+        }
+    }
+    % Set Property Command
+    \exp_args:Ncf \DeclareDocumentCommand{#2}{om}{
+        % \bool_if:NT #1 {
+        \tl_gset:cn {g_rubos_document_#2_description_tl} {##1}
+        % }
+        \tl_gset:cn {g_rubos_document_#2_tl} {##2}
+        \tl_if_empty:cF {g_rubos_document_#2_tl} {
+            % Print Text
+            \tl_if_blank:nTF {#4} {
+                % Default Text
+                \tl_gset:cn {
+                    print
+                    \str_uppercase:f { \tl_head:n {#2} }
+                    \tl_tail:n {#2}
+                } {
+                    \sffamily\textbf{
+                        \str_uppercase:f { \tl_head:n {#2} }
+                        \tl_tail:n {#2}:~}\tl_use:c {g_rubos_document_#2_tl}
+                }
+            } {
+                % Custom Text
+                \tl_gclear_new:c {g_rubos_document_#2_print_tl}
+                \tl_gset:cn {g_rubos_document_#2_print_tl} {#4}
+                \exp_args:Nnnc \regex_replace_all:nnN {\*} {
+                    \u{g_rubos_document_#2_tl}
+                } {g_rubos_document_#2_print_tl}
+                \tl_gset:cn {
+                    print
+                    \str_uppercase:f { \tl_head:n {#2} }
+                    \tl_tail:n {#2}
+                } {
+                    \tl_use:c {g_rubos_document_#2_print_tl}
+                }
+            }
+        }
+    }
+    \tl_if_blank:nF {#3} {
+        \csname#2\endcsname{#3}
+    }
+}
+
+% Document Version
+\DeclareDocumentProperty{version}[1.0][\textsf{\textbf{Version:}}~v*]
+
+% Topic
+\DeclareDocumentProperty{topic}[][\textsf{\textbf{Themen:~}*}]
+
+% Author
+\DeclareDocumentCommand{\getAuthor}{}{
+    \@author
+}
+\DeclareDocumentCommand{\getTitle}{}{
+    \@title
+}
+\DeclareDocumentCommand{\getSubtitle}{}{
+    \@subtitle
+}
+
+%%--Blocks, Boxes and Environments--%%
+\def\rubos@boxarc{\prop_item:Nn \g_rubos_document_opts_prop {boxarc}} % Used for Code Blocks, Info boxes, etc.
+\@ifundefined{\string\color@accentcolor}{\definecolor{accentcolor}{RGB}{0, 157, 129}}{}
+
+% Fancy Table Row Color
+\bool_if:NT \g_ptxcd_ex_fancy_rowcolor_bool {
+    \rowcolors{2}{\thepagecolor}{fgcolor!10!\thepagecolor}
+}
+
+% A Gray Info Box (gray bar on the Left+ light gray background)
+\NewTColorBox{grayInfoBox}{O{}}{
+    colback=\IfDarkModeTF{white!10!\thepagecolor}{gray!10}, %Hintergrundfarbe
+    % colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
+    coltext=.,
+    colframe=gray, % Randfarbe
+    frame~hidden,
+    title~style=black!80,
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    parbox=false,
+    left=5pt, % Links Platz lassen
+    top=1mm,
+    bottom=1mm,
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf
+    fontupper=\setlength{\parskip}{\medskipamount},
+    overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+            \fill[gray] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
+    #1 % Weitere Argumente zulassen
+}
+
+% A Normal Information Box (Accentcolor bar on the left)
+\NewTColorBox{infoBox}{O{}}{
+    colback=\thepagecolor, %Hintergrundfarbe
+    colframe=accentcolor, % Randfarbe
+    coltext=.,
+    frame~hidden,
+    title~style=\IfDarkModeTF{accentcolor!60!black}{accentcolor},
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    parbox=false,
+    left=5pt, % Links Platz lassen
+    top=1mm,
+    bottom=1mm,
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf
+    fontupper=\setlength{\parskip}{\medskipamount},
+    overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+            \fill[accentcolor] (frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
+    #1 % Weitere Argumente zulassen
+}
+
+% An Important Information Box (Accentcolor bar on the left+ light Accentcolor BG)
+\NewTColorBox{defBox}{O{}}{
+    colback=\IfDarkModeTF{accentcolor!20!\thepagecolor}{accentcolor!10!\thepagecolor}, %Hintergrundfarbe
+    colframe=accentcolor, % Randfarbe
+    coltext=.,
+    frame~hidden,
+    title~style=accentcolor,
+    arc=\rubos@boxarc,
+    boxrule=0pt,
+    parbox=false,
+    left=5pt, % Links Platz lassen
+    top=1mm,
+    bottom=1mm,
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf
+    fontupper=\setlength{\parskip}{\medskipamount},
+    overlay={ % Für Grauen Bereich links
+        \begin{tcbclipinterior}
+            \fill[accentcolor]~(frame.south~west) rectangle ([xshift=4pt]frame.north~west); % Zeilennummernbereich färben
+        \end{tcbclipinterior}
+    },
+    #1 % Weitere Argumente zulassen
+}
+
+% Box like The one Used for Code Blocks, just without Code Block
+\NewTColorBox{normalBox}{O{}}{%
+    colback=fgcolor!10!\thepagecolor, %Hintergrundfarbe
+    colframe=black!70, % Randfarbe
+    coltext=.,
+    boxrule=0pt,
+    parbox=false,
+    frame~hidden,
+    title~style=black!70,
+    arc=\rubos@boxarc,
+    left=5pt, % Links Platz lassen
+    top=1mm,
+    bottom=1mm,
+    enhanced, % Erlaubt uns, den ramen zu zeichnen
+    fonttitle=\sffamily, % Titelschriftart auf
+    fontupper=\setlength{\parskip}{\medskipamount},
+    #1 % Weitere Argumente zulassen
+}
+
+\RequirePackage{etoolbox}
+\AtEndPreamble{
+    % definition Environment Style
+    \newtheoremstyle{mydefinition}% Theorem style name
+    {0pt}% Space above
+    {0pt}% Space below
+    {\normalfont}% Body font
+    {}% Indent amount
+    {\normalsize\bfseries\sffamily\color{accentcolor}}% Theorem head font
+    {\;}% Punctuation after theorem head
+    {0.25em}% Space after theorem head
+    {
+        \normalsize\sffamily\color{accentcolor}\thmname{#1}% Theorem text (e.g. Theorem 2.1)
+        \thmnote{\space\sffamily\bfseries\color{fgcolor}---\space#3}% Optional theorem note
+    }
+
+    % Definition Environment
+    \theoremstyle{mydefinition}%
+    \newtheorem{definitionT}{\textsf{Definition}}%
+    \newtheorem{ideaT}{\textsf{Idee}}%
+    \DeclareDocumentEnvironment{definition}{}{
+        \begin{defBox}
+            \begin{definitionT}
+                }{
+            \end{definitionT}
+        \end{defBox}
+    }%
+    \DeclareDocumentEnvironment{idea}{}{
+        \begin{defBox}
+            \begin{ideaT}
+                }{
+            \end{ideaT}
+        \end{defBox}
+    }%
+
+    \seq_gclear_new:N \rubos_color_box_environment_seq
+    % #1 (optional) star - marks a deprecated environment
+    % #2: (optional) Default bracket text
+    % #3: Environment name
+    % #4: Environment Box
+    % #5: Environment Text
+    \DeclareDocumentCommand{\rubosDeclareColorBoxEnvironment}{s O{} m m m} {
+        \DeclareDocumentEnvironment{#3}{O{#2}m} {
+            \bool_if:nT {#1} {
+                % deprecated
+                \PackageWarning{rubos-common}{The~Environment~#3~is~deprecated.}
+            }
+            \begin{#4}
+            \normalsize\textsf{\textbf{#5\tl_if_blank:nF {##1} {~(\textmd{##1})}:}}\par
+            ##2
+        }{
+            \end{#4}
+        }
+
+        \bool_if:nF {#1} {
+            \seq_gclear_new:N \rubos_curr_color_box_environment_seq
+            \seq_gput_right:Nn \rubos_curr_color_box_environment_seq {#3}
+            \seq_gput_right:Nn \rubos_curr_color_box_environment_seq {#4}
+            \seq_gput_right:Nn \rubos_curr_color_box_environment_seq {#2}
+            \seq_gput_right:Nn \rubos_curr_color_box_environment_seq {#5}
+            \seq_gput_right:No \rubos_color_box_environment_seq {\rubos_curr_color_box_environment_seq}
+        }
+    }
+
+    \rubosDeclareColorBoxEnvironment{ausblick}{infoBox}{Ausblick}
+    \rubosDeclareColorBoxEnvironment*{tipp}{infoBox}{Tipp}
+    \rubosDeclareColorBoxEnvironment*{tipps}{infoBox}{Tipps}
+    \rubosDeclareColorBoxEnvironment{hinweis}{infoBox}{Hinweis}
+    \rubosDeclareColorBoxEnvironment{hinweise}{infoBox}{Hinweise}
+    \rubosDeclareColorBoxEnvironment*{uvhinweis}{infoBox}{Unverbindlicher~Hinweis}
+    \rubosDeclareColorBoxEnvironment*{uvhinweise}{infoBox}{Unverbindliche~Hinweise}
+    \rubosDeclareColorBoxEnvironment{erinnerung}{infoBox}{Erinnerung}
+    \rubosDeclareColorBoxEnvironment{anmerkung}{infoBox}{Anmerkung}
+    \rubosDeclareColorBoxEnvironment{anmerkungen}{infoBox}{Anmerkungen}
+    \rubosDeclareColorBoxEnvironment*{anmerkungr}{infoBox}{Anmerkung~am~Rande}
+    \rubosDeclareColorBoxEnvironment*{anmerkungenr}{infoBox}{Anmerkungen~am~Rande}
+    \rubosDeclareColorBoxEnvironment*{bemerkung}{infoBox}{Bemerkung}
+    \rubosDeclareColorBoxEnvironment*{bemerkungen}{infoBox}{Bemerkungen}
+    \rubosDeclareColorBoxEnvironment*{bemerkungr}{infoBox}{Bemerkung~am~Rande}
+    \rubosDeclareColorBoxEnvironment*{bemerkungenr}{infoBox}{Bemerkungen~am~Rande}
+    \rubosDeclareColorBoxEnvironment{beispiel}{infoBox}{Beispiel}
+    \rubosDeclareColorBoxEnvironment{beispiele}{infoBox}{Beispiele}
+    \rubosDeclareColorBoxEnvironment{exkurs}{grayInfoBox}{Exkurs}
+    \rubosDeclareColorBoxEnvironment*{example}{infoBox}{Beispiel}
+    \rubosDeclareColorBoxEnvironment*{kaufgabe}{infoBox}{Konkrete~Aufgabe}
+    \rubosDeclareColorBoxEnvironment*{kaufgaben}{infoBox}{Konkrete~Aufgaben}
+    \rubosDeclareColorBoxEnvironment*{tldr}{infoBox}{Tl;dr}
+    \rubosDeclareColorBoxEnvironment*{tldr}{infoBox}{Tl;dr}
+    \rubosDeclareColorBoxEnvironment{testzurkontrolle}{grayInfoBox}{Unbewerteter~Test~zur~eigenen~Kontrolle}
+    \rubosDeclareColorBoxEnvironment{testszurkontrolle}{grayInfoBox}{Unbewertete~Tests~zur~eigenen~Kontrolle}
+    \rubosDeclareColorBoxEnvironment{vfrage}{grayInfoBox}{Unbewertete~Verständnisfrage}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{wvfrage}{grayInfoBox}{Wichtige~Verständnisfrage}
+    \rubosDeclareColorBoxEnvironment{vfragen}{grayInfoBox}{Unbewertete~Verständnisfragen}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{wvfragen}{grayInfoBox}{Wichtige~Verständnisfragen}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{vfrager}{grayInfoBox}{Verständnisfrage~am~Rande}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{vfragenr}{grayInfoBox}{Verständnisfragen~am~Rande}
+    \rubosDeclareColorBoxEnvironment*[0~Punkte]{mvfrage}{grayInfoBox}{Missverständnisfrage}
+    \rubosDeclareColorBoxEnvironment{vanforderung}{defBox}{Verbindliche~Anforderung}
+    \rubosDeclareColorBoxEnvironment{vanforderungen}{defBox}{Verbindliche~Anforderungen}
+    \rubosDeclareColorBoxEnvironment{vanforderunghu}{defBox}{Verbindliche~Anforderung~für~die~gesamte~Hausübung}
+    \rubosDeclareColorBoxEnvironment{vanforderungenhu}{defBox}{Verbindliche~Anforderungen~für~die~gesamte~Hausübung}
+    \rubosDeclareColorBoxEnvironment{vanforderungahu}{defBox}{Verbindliche~Anforderung~für~alle~Hausübungen}
+    \rubosDeclareColorBoxEnvironment{vanforderungenahu}{defBox}{Verbindliche~Anforderungen~für~alle~Hausübungen}
+
+    \RequirePackage{newfloat}
+    % FloatingEnvironment for Code Blocks
+    \DeclareFloatingEnvironment[
+        fileext=loc,
+        listname={List of Code Blocks},
+        name=Code Block,
+        placement=H,
+        within=section,
+    ]{codeblockfloat}
+}
+% \theoremstyle{fopTheorem}%
+% \newtheorem{hinweisT}{\textsf{Hinweis:}}%
+% \newenvironment{hinweis}{\begin{infoBox}\begin{hinweisT}}{\end{hinweisT}\end{infoBox}}%
+
+\lstloadlanguages{Java}
+
+\lstdefinelanguage{Racket}{%
+    alsoletter=+-*/?\=<>!~\#,%
+    morekeywords={%
+        empty, true, \#true, \#t, false, \#false, \#f%
+    },%
+    morekeywords={%
+        lambda, define-datatype, begin, begin0, set!, delay, shared, recur,%
+        case, match, when, unless%
+    },%
+    morekeywords={%
+        local, letrec, let*, let, time, define, define-struct, cond, else, if,%
+        and, or, check-expect, check-random, check-satisfied, check-within,%
+        check-error, check-member-of, check-range, require%
+    },%
+    morekeywords={%
+        -, <, <=, =, >, >=, abs, acos, add1, angle, asin, atan, ceiling,%
+        complex?, conjugate, cos, cosh, current-seconds, denominator, e, even?,%
+        exact->inexact, exact?, exp, expt, floor, gcd, imag-part,%
+        inexact->exact, inexact?, integer->char, integer-sqrt, integer?, lcm,%
+        log, magnitude, make-polar, make-rectangular, max, min, modulo,%
+        negative?, number->string, number?, numerator, odd?, pi, positive?,%
+        quotient, random, rational?, real-part, real?, remainder, round, sgn,%
+        sin, sinh, sqr, sqrt, sub1, tan, zero?%
+    },%
+    morekeywords={%
+        boolean->string, boolean=?, boolean?, false?, not%
+    },%
+    morekeywords={%
+        symbol->string, symbol=?, symbol%
+    },%
+    morekeywords={%
+        append, assoc, assq, caaar, caadr, caar, cadar, cadddr, caddr, cadr,%
+        car, cdaar, cdadr, cdar, cddar, cdddr, cddr, cdr, cons, cons?, eighth,%
+        empty?, fifth, first, for-each, fourth, length, list, list*, list-ref,%
+        list?, make-list, member, member?, memq, memq?, memv, null, null?,%
+        range, remove, remove-all, rest, reverse, second, seventh, sixth, third%
+    },%
+    morekeywords={%
+        make-posn, posn-x, posn-y, posn?, set-posn-x!, set-posn-y!%
+    },%
+    morekeywords={%
+        char->integer, char-alphabetic?, char-ci<=?, char-ci<?, char-ci=?,%
+        char-ci>=?, char-ci>?, char-downcase, char-lower-case?, char-numeric?,%
+        char-upcase, char-upper-case?, char-whitespace?, char<=?, char<?,%
+        char=?, char>=?, char>?, char?%
+    },%
+    morekeywords={%
+        explode, format, implode, int->string, list->string, make-string,%
+        replicate, string, string->int, string->list, string->number,%
+        string->symbol, string-alphabetic?, string-contains-ci?,%
+        string-contains?, string-copy, string-downcase, string-ith,%
+        string-length, string-lower-case?, string-numeric?, string-ref,%
+        string-upcase, string-upper-case?, string-whitespace?, string?,%
+        substring%
+    },%
+    morekeywords={%
+        image=?, image?%
+    },%
+    morekeywords={%
+        =~, current-milliseconds, eof, eof-object?, eq?, equal?, equal~?, eqv?,%
+        error, exit, force, gensym, identity, promise?, sleep, struct?, void,%
+        void?%
+    },%
+    morekeywords={%
+        +, *, /
+    },%
+    morekeywords={%
+        string-append, string-ci<=?, string-ci<?, string-ci=?, string-ci>=?,%
+        string-ci>?, string<=?, string<?, string=?, string>=?, string>?%
+    },%
+    morekeywords={%
+        posn%
+    },%
+    morekeywords={%
+        andmap, apply, argmax, argmin, build-list, build-string, compose,%
+        filter, foldl, foldr, map, memf, ormap, procedure?, quicksort, sort%
+    },%
+    morekeywords={%
+        display, newline, pretty-print, print, printf, read,%
+        with-input-from-file, with-input-from-string, with-output-to-file,%
+        with-output-to-string, write%
+    },%
+    morekeywords={%
+        build-vector, list->vector, make-vector, vector, vector->list,%
+        vector-length, vector-ref, vector-set!, vector?%
+    },%
+    morekeywords={%
+        box, box?, set-box!, unbox
+    },%
+    morekeywords={%
+        hash-copy, hash-count, hash-eq?, hash-equal?, hash-eqv?, hash-for-each,%
+        hash-has-key?, hash-map, hash-ref, hash-ref!, hash-remove,%
+        hash-remove!, hash-set, hash-set!, hash-update, hash-update!, hash?,%
+        make-hash, make-hasheq, make-hasheqv, make-immutable-hash,%
+        make-immutable-hasheq, make-immutable-hasheqv
+    },%
+    morecomment=[l]{;},%
+    morecomment=[s]{\#|}{|\#},%
+    morestring=[b]{"}%
+}
+
+\lstalias{Scheme}{Racket}
+
+\RequirePackage{xcolor}
+
+\definecolor{rubos@codekeyword}{rgb}{0.13,0.13,1}
+\definecolor{rubos@codestring}{rgb}{0.9,0,0}
+\definecolor{rubos@codecomment}{rgb}{0,0.5,0}
+\definecolor{rubos@codegray}{rgb}{0.46,0.45,0.48}
+\definecolor{rubos@codebackground}{rgb}{0.90,0.92,0.95}
+
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{\IfDarkModeTF{cyan!70!blue}{rubos@codekeyword}},
+    stringstyle=\color{\IfDarkModeTF{orange!70!yellow}{rubos@codestring}},
+    commentstyle=\color{\IfDarkModeTF{green}{rubos@codecomment}},
+    showstringspaces=false,
+    breaklines,
+    breakatwhitespace,
+    keepspaces,
+    numbers=left,
+    numberstyle=\ttfamily\scriptsize,
+    numbersep=14pt,
+    backgroundcolor=\color{\IfDarkModeTF{codebg}{black!10!\thepagecolor}},
+    % frame=single,
+}
+
+\lstdefinestyle{racket}{
+    language=Racket,
+    moredelim=[is][\textcolor{rubos@codegray}]{/*}{*/},
+    moredelim=[is][\underline]{/*!}{*/},
+    literate={\_}{}{0\discretionary{-}{}{}} {\-}{}{0\discretionary{-}{}{-}}
+}
+
+\lstdefinestyle{java}{
+    language=Java,
+    moredelim=[is][\textcolor{rubos@codegray}]{\#|}{|\#},
+    moredelim=[is][\underline]{\#|!}{|\#}
+}
+
+\DeclareDocumentCommand{\inlineracket}{m}{\texorpdfstring{\sloppy\lstinline[style=racket]{#1}}{#1}}
+\DeclareDocumentCommand{\inlinejava}{m}{\texorpdfstring{\sloppy\lstinline[style=java]{#1}}{#1}}
+
+\lstnewenvironment{racket}[1][]{language=java,\lstset{style=racket, #1}}{}
+\lstnewenvironment{java}[1][]{language=racket,\lstset{style=java, #1}}{}
+
+\DeclareDocumentCommand{\listofcodeblocks}{}{
+    \listof{codeblockfloat}{List~of~Code~Blocks}
+}
+
+\IfShellEscapeTF{
+    \tcbuselibrary{minted}
+    \bool_if:NT \g_rubos_minted_workaround_bool {
+        \cs_undefine:c {float@listhead}
+    }
+
+    % Minted Line Number Styling
+    \renewcommand{\theFancyVerbLine}{\tikz{\coordinate(a);\node[text~width=5mm,inner~sep=0pt,align=center]{\ttfamily\textcolor{white}{\scriptsize\arabic{FancyVerbLine}}};}}
+
+    % Environment für meinen Code-Style
+    % $1 star: no float
+    % $2 (optional): Minted Options
+    % $3:(optional): listing title for list of code blocks
+    % $4: Tcolorbox Options
+    \NewTCBListing{codeBlock}{ s O{} O{} m }{
+        listing~engine=minted, % Minted verwenden
+        colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+        colframe=black!70, % Randfarbe
+        coltext=.,
+        listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+        frame~hidden,
+        boxrule=0pt,
+        arc=\rubos@boxarc,
+        %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+        title~style=\IfDarkModeTF{accentcolor!60!black}{accentcolor},
+        minted~style/.expanded=\IfDarkModeTF{dracula}{tango}, % Highlighting Style anpassen
+        minted~language=java, % Sprache setzen
+        minted~options={ %Minted Optionen
+            linenos=true,
+            numbersep=3mm,
+            texcl=true,
+            autogobble,
+            escapeinside=@@,
+            breaklines,
+            highlightcolor=\IfDarkModeTF{yellow!50!black}{yellow!80},
+            #2 % weitere optionen für Minted zulassen
+        },
+        left=7.1mm, % Links Platz lassen
+        enhanced, % Erlaubt uns, den ramen zu zeichnen
+        fonttitle=\sffamily, % Titelschriftart auf
+        overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+        %\begin{noindent}
+        before~upper={
+            \IfBooleanTF{#1}{\begin{codeblockfloat}\vspace{-\baselineskip}}{}
+        },
+        after~upper={
+            \IfBooleanTF{#1}{\hbox to 0cm{\captionlistentry[codeblockfloat]{\mbox{}\quad\tl_if_blank:eTF{#3}{\kvtcb@title}{#3}}}
+            \end{codeblockfloat}
+            \vspace{-2.5\baselineskip}}{}
+        },
+        %\end{noindent}
+        #4 % Weitere Argumente zulassen
+    }
+    % Input Listing für Code-Style
+    % $1 star: no float
+    % $2: (optional): Minted Options
+    % $3:(optional): listing title for list of code blocks
+    % $4: Tcolorbox Options
+    % $5: File Name
+    \NewTCBInputListing{\inputCode}{ s O{} O{} m m }{
+        listing~engine=minted, % Minted verwenden
+        listing~file={#5},
+        colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+        colframe=black!70, % Randfarbe
+        coltext=.,
+        listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+        frame~hidden,
+        boxrule=0pt,
+        arc=\rubos@boxarc,
+        %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+        title~style=\IfDarkModeTF{accentcolor!60!black}{accentcolor},
+        minted~language=java, % Sprache setzen
+        minted~style/.expanded=\IfDarkModeTF{dracula}{tango}, % Highlighting Style anpassen
+        minted~options={ %Minted Optionen
+            linenos=true,
+            numbersep=3mm,
+            texcl=true,
+            autogobble,
+            escapeinside=@@,
+            breaklines,
+            highlightcolor=\IfDarkModeTF{yellow!50!black}{yellow!80},
+            #2 % weitere optionen für Minted zulassen
+        },
+        left=7.1mm, % Links Platz lassen
+        enhanced, % Erlaubt uns, den ramen zu zeichnen
+        fonttitle=\sffamily, % Titelschriftart auf
+        overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+        %\begin{noindent}
+        before~upper={
+            \IfBooleanTF{#1}{\begin{codeblockfloat}\vspace{-\baselineskip}}{}
+        },
+        after~upper={
+            \IfBooleanTF{#1}{\hbox to 0cm{\captionlistentry[codeblockfloat]{\mbox{}\quad\tl_if_blank:eTF{#3}{\kvtcb@title}{#3}}}
+            \end{codeblockfloat}
+            \vspace{-2.5\baselineskip}}{}
+        },
+        %\end{noindent}
+        #4 % Weitere Argumente zulassen
+    }
+}{
+    \tcbuselibrary{listingsutf8}
+    % Environment für meinen Code-Style
+    % $1 star: no float
+    % $2 (optional): Minted Options
+    % $3 (optional): listing title for list of code blocks
+    % $4: Tcolorbox Options
+    \NewTCBListing{codeBlock}{ s O{} O{} m }{
+        listing~engine=listings, % Minted verwenden
+        colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+        colframe=black!70, % Randfarbe
+        coltext=.,
+        listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+        frame~hidden,
+        boxrule=0pt,
+        arc=\rubos@boxarc,
+        %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+        title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+        listing~options={ %Minted Optionen
+            style=java,
+        },
+        left=7.1mm, % Links Platz lassen
+        enhanced, % Erlaubt uns, den ramen zu zeichnen
+        fonttitle=\sffamily, % Titelschriftart auf
+        overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+        %\begin{noindent}
+        before~upper={
+            \IfBooleanTF{#1}{\begin{codeblockfloat}\vspace{-\baselineskip}}{}
+        },
+        after~upper={
+            \IfBooleanTF{#1}{\hbox to 0cm{\captionlistentry[codeblockfloat]{\mbox{}\quad\tl_if_blank:eTF{#3}{\kvtcb@title}{#3}}}
+            \end{codeblockfloat}
+            \vspace{-2.5\baselineskip}}{}
+        },
+        %\end{noindent}
+        #4 % Weitere Argumente zulassen
+    }
+    % Input Listing für Code-Style
+    % $1 star: no float
+    % $2 (optional): Minted Options
+    % $3(optional): listing title for list of code blocks
+    % $4: Tcolorbox Options
+    % $5: File Name
+    \NewTCBInputListing{\inputCode}{ s O{} O{} m m }{
+        listing~engine=listings, % Minted verwenden
+        listing~file={#5},
+        colback=\IfDarkModeTF{codebg}{black!10!\thepagecolor}, %Hintergrundfarbe
+        colframe=black!70, % Randfarbe
+        coltext=.,
+        listing~only,  % Sonst will er den Plain Text nach dem Minted Listing noch anfügen
+        frame~hidden,
+        boxrule=0pt,
+        arc=\rubos@boxarc,
+        %hbox, % This option could be used to limit the Length of Code Blocks automatically, but does not work with the minted Line Numbers
+        title~style=\IfDarkModeTF{accentcolor!60!black}{black!90},
+        listing~options={ %Minted Optionen
+            style=java,
+        },
+        left=7.1mm, % Links Platz lassen
+        enhanced, % Erlaubt uns, den ramen zu zeichnen
+        fonttitle=\sffamily, % Titelschriftart auf
+        overlay={ % Für Grauen Bereich links
+            \begin{tcbclipinterior}
+                \fill[black!70] (frame.south~west) rectangle ([xshift=5mm]frame.north~west); % Zeilennummernbereich färben
+            \end{tcbclipinterior}
+        },
+        %\begin{noindent}
+        before~upper={
+            \IfBooleanTF{#1}{\begin{codeblockfloat}\vspace{-\baselineskip}}{}
+        },
+        after~upper={
+            \IfBooleanTF{#1}{\hbox to 0cm{\captionlistentry[codeblockfloat]{\mbox{}\quad\tl_if_blank:eTF{#3}{\kvtcb@title}{#3}}}
+            \end{codeblockfloat}
+            \vspace{-2.5\baselineskip}}{}
+        },
+        %\end{noindent}
+        #4 % Weitere Argumente zulassen
+    }
+}
+
+%%--Makros--%%
+\DeclareDocumentEnvironment{cpenumerate}{O{}}{
+    \begin{enumerate}[nosep, #1]}{
+    \end{enumerate}
+}
+
+\DeclareDocumentEnvironment{steps}{o}{
+    \begin{enumerate}[label={\textsf{\arabic*. Schritt:~}}, leftmargin=2cm]}{
+    \end{enumerate}
+}
+
+\DeclareDocumentCommand{\includeinvertablegraphics}{O{}m}{% Grafik wird beim Dark Mode automatisch Invertiert (rgb)
+    \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0~1.0~0.0~1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+
+\DeclareDocumentCommand{\includeinvertablegrayscalegraphics}{O{}m}{% Grafik wird beim Dark Mode automatisch Invertiert (grayscale)
+    \IfDarkModeTF{\includegraphics[decodearray={1.0~0.0},#1]{#2}}{\includegraphics[#1]{#2}}
+}
+\IfShellEscapeTF{
+    \usemintedstyle{borland}
+    \newmintinline[code]{java}{fontsize=\footnotesize}
+}{
+    \DeclareDocumentCommand{\code}{m}{{\texttt{\footnotesize #1}}}
+}
+
+% \DeclareDocumentCommand{\codeBlockTitle}{m}{\faCode\hfill\mbox{}#1\hfill\faCode}
+\DeclareDocumentCommand{\codeBlockTitle}{m}{\faCode\hfill\mbox{}#1\hfill\faCode}
+
+\DeclareDocumentCommand{\blockTitle}{m}{\par \centering \fatsf{#1}\par}
+
+\DeclareDocumentCommand{\raisedcode}{m}{\raisebox{.1em}{\code{#1}}}
+\DeclareDocumentCommand{\bluecode}{m}{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
+\definecolor{darkred}{rgb}{0.8, 0.0, 0.0}
+\DeclareDocumentCommand{\red}{m}{\fatsf{\textcolor{darkred}{#1}}}
+\definecolor{darkblue}{RGB}{0, 0, 200}
+\DeclareDocumentCommand{\blue}{m}{\fatsf{\textcolor{darkblue}{#1}}}
+\DeclareDocumentCommand{\raisedcode}{m}{\raisebox{.1em}{\code{#1}}}
+\DeclareDocumentCommand{\bluecode}{m}{\code{\textcolor{\IfDarkModeTF{cyan}{blue}}{#1}}}
+\DeclareDocumentCommand{\red}{m}{\textcolor{red}{#1}}
+\DeclareDocumentCommand{\fatsf}{m}{\textbf{\textsf{#1}}}
+\DeclareDocumentCommand{\fatit}{m}{\textbf{\textit{#1}}}
+\DeclareDocumentCommand{\gegeben}{}{\textbf{\textsf{Gegeben:~}}}
+\DeclareDocumentCommand{\gesucht}{}{\textbf{\textsf{Gesucht:~}}}
+\DeclareDocumentCommand{\zuzeigen}{}{\textbf{\textsf{Zu~zeigen:~}}}
+\DeclareDocumentCommand{\zuberechnen}{}{\textbf{\textsf{Zu~berechnen:~}}}
+\DeclareDocumentCommand{\zubestimmen}{}{\textbf{\textsf{Zu~bestimmen:~}}}
+\DeclareDocumentCommand{\anzugeben}{}{\textbf{\textsf{Anzugeben:~}}}
+\DeclareDocumentCommand{\loesung}{}{\textbf{\textsf{Lösung:~}}}
+\DeclareDocumentCommand{\antwort}{}{\textbf{\textsf{Antwort:~}}}
+\DeclareDocumentCommand{\rechnung}{}{\textbf{\textsf{Rechnung:~}}}
+\DeclareDocumentCommand{\fakebullet}{}{~\raisebox{-.2\height}{\llap{\textbullet}}~}
+\DeclareDocumentCommand{\fakebullett}{}{~\llap{-}~}
+\DeclareDocumentCommand{\fakebullettt}{}{~\llap{*}~}
+\DeclareDocumentCommand{\mlcell}{O{l}m}{\Gape[0pt][2pt]{\makecell[#1]{#2}}}
+\DeclareDocumentCommand{\toprighttreemark}{m}{{\node[inner~sep=0pt] at (.north~east) [xshift=.2cm,yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toplefttreemark}{m}{{\node[inner~sep=0pt] at (.north~west) [xshift=-.2cm,yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toptreemark}{m}{{\node[inner~sep=0pt] at (.north) [yshift=.2cm] {#1};}}
+\DeclareDocumentCommand{\toppointer}{m}{{\node[inner sep=0pt] (lbl) at (.north) [yshift=1cm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
+\DeclareDocumentCommand{\shorttoppointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [yshift=6mm] {\textcolor{orange}{#1}}; \draw[->,orange] (lbl.south) -- (.north);}}
+\DeclareDocumentCommand{\toprightpointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [xshift=.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)-(.05cm,0)$) -- ($(.north)+(.1cm,-.15mm)$);}}
+\DeclareDocumentCommand{\topleftpointer}{m}{{\node[inner~sep=0pt] (lbl) at (.north) [xshift=-.3cm,yshift=.8cm] {\textcolor{orange}{#1}}; \draw[->,orange] ($(lbl.south)+(.05cm,0)$) -- ($(.north)-(.1cm,.15mm)$);}}
+\DeclareDocumentCommand{\hyraisedlink}{m}{\Hy@raisedlink{\hypertarget{#1}{}}}
+% Boxes surrounded by borders for information and warnings.
+\DeclareDocumentCommand{\info}{m}{%
+    \begin{defBox}
+        %
+        #1
+    \end{defBox}
+}
+\DeclareDocumentCommand{\warning}{m}{
+    \begin{defBox}
+        \fatsf{Warnung:}~#1
+    \end{defBox}
+}
+
+% Workarounds and similar stuff.
+\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+
+\DeclareDocumentCommand{\resetrc}{}{\global\rownum=0\relax} % T#
+\DeclareDocumentCommand{\continuerc}{}{\global\rownum=\numexpr\rownum - 1\relax} % T#
+
+% References from external Files
+\DeclareDocumentCommand{\setextlblprefix}{m}{
+    \tl_if_empty:cTF {#1} {
+        \tl_gset:Nn \g_rubos_external_label_prefix_tl {ext:}
+    } {
+        \tl_gset:Nn \g_rubos_external_label_prefix_tl {#1}
+    }
+}
+
+\DeclareDocumentCommand{\extref}{O{\g_rubos_external_label_prefix_tl}m}{
+    \bool_if:NTF \g_rubos_is_main_file_bool {
+        \ref{#2}
+    } {
+        \ref{#1#2}
+    }
+}
+\DeclareDocumentCommand{\exthyperref}{oO{\g_rubos_external_label_prefix_tl}m}{
+    \bool_if:NTF \g_rubos_is_main_file_bool {
+        \hyperref[#1]{#3}
+    } {
+        \hyperref[#2#1]{#3}
+    }
+}
+
+%%-----------%%
+%%--JavaDoc--%%
+%%-----------%%
+% Command by: nyanyan <nhanhuynh_online@protonmail.com>
+
+% Variables
+\tl_gset:Nn \g_rubos_javadoc_prefix_one_tl {https://docs.oracle.com/en/java/javase/}
+\tl_gset:Nn \g_rubos_javadoc_prefix_two_tl {/docs/api/java.base/}
+\tl_gset:Nn \g_rubos_javadoc_suffix_tl {.html}
+\tl_new:N \l_tmpc_tl
+\tl_new:N \l_tmpd_tl
+
+% Key-Value Option
+\keys_define:nn {algoexercise/javadoc}
+{
+    jdk .int_set:N=\l_rubos_javadoc_jdk_int,
+    jdk .initial:n=17,
+    title .tl_set:N=\l_rubos_javadoc_title_tl,
+    title .initial:n=,
+    ref .tl_set:N=\l_rubos_javadoc_ref_tl,
+    ref .initial:n=,
+}
+
+% Reference JavaDoc
+% Syntax: \refJavadoc[jdk=17,title=Comparator<T>,ref=compare(T,T)]{java.util.Comparator}
+% Output: Comparator<T>#compare(T,T)
+\DeclareDocumentCommand{\refJavaDoc}{s +o m}
+{
+    % #1: (optional) if a star is used, only the class name will be shown (java.util.Comparator -> Comparator)
+    % #2: Options
+    % #3: Class name
+    % \l_tmpa_tl: Class name url
+    % \l_tmpb_tl: Formatted title
+    % \l_tmpc_tl: Reference name
+    % \l_tmpd_tl: Full url
+
+    % Process options
+    \IfNoValueF{#2}{
+        \keys_set:nn {algoexercise/javadoc}{#2}
+    }
+
+    % \l_tmpa_tl: Replace . with / in order to create a valid url
+    \tl_set:Nf \l_tmpa_tl {#3}
+    \regex_replace_all:nnN {\.}{/} \l_tmpa_tl
+
+    % Format title
+    \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+    {
+        % No custom title, copy class namme
+        \bool_if:NTF #1 {
+            \regex_extract_once:nnN {([\w\.]*\.)*(\w+)} {#3} \l_tmpx_tl
+            \tl_set:Nn \l_tmpb_tl {\seq_item:Nn \l_tmpx_tl {3}}
+        } {
+            \tl_set:Nn \l_tmpb_tl {#3}
+        }
+    }
+    {
+        % Custom title, copy title
+        \tl_set:Nf \l_tmpb_tl {\l_rubos_javadoc_title_tl}
+    }
+
+    % Reference name
+    \tl_if_empty:NTF {\l_rubos_javadoc_ref_tl}
+    {
+        % No reference name provided
+    }
+    {
+        % #reference
+        \tl_set:Nf \l_tmpc_tl {\#\l_rubos_javadoc_ref_tl}
+        \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+        {
+            % No custom title, add reference name
+            \tl_set:Nf \l_tmpb_tl {\l_tmpb_tl\l_tmpc_tl}
+        }
+        {
+            % Custom title, nothing to do
+        }
+    }
+
+    % Full url: prefix + java class + suffix + method
+    \tl_set:Nf \l_tmpd_tl {
+        \g_rubos_javadoc_prefix_one_tl\int_use:c{l_rubos_javadoc_jdk_int}\g_rubos_javadoc_prefix_two_tl\l_tmpa_tl\g_rubos_javadoc_suffix_tl\l_tmpc_tl
+    }
+
+    % Hyperlink
+    \href{\l_tmpd_tl}{
+        \tl_if_empty:NTF {\l_rubos_javadoc_title_tl}
+        {
+            \exp_args:Nx \inlinejava{\l_tmpb_tl}
+        }
+        {
+            \l_tmpb_tl
+        }
+    }
+
+    % Reset variables
+    \int_set:Nn \l_rubos_javadoc_jdk_int {17}
+    \tl_clear:N \l_rubos_javadoc_title_tl
+    \tl_clear:N \l_rubos_javadoc_ref_tl
+}
+
+% #1
+\DeclareDocumentCommand{\fopSlideRef}{O{1}oov}{
+    \regex_extract_once:nnN { Folien\ (\d{1,2}[a-z]{0,1})\ (.*)(\.pdf){0,1} } { #4 } \l_foo_seq
+    \href{\prop_item:Nn \g_rubos_document_opts_prop {fopslides} #4.pdf\#page=#1}{
+        \tl_if_novalue:nTF {#3} {
+            Kapitel~\seq_item:Nn \l_foo_seq {2}
+            \tl_if_novalue:nTF {#2} {
+                \tl_if_eq:nnTF{#1}{1}{~}{,~ab~Folie~#1~}
+            } {,~Folien~#1-#2~}
+            der~FOP
+        } {#3}
+    }
+}
+
+% \DeclareDocumentCommand{\audSlideRef}{O{1}v}{
+%     \href{\prop_item:Nn \g_rubos_document_opts_prop {audslides} #2.pdf\#page=#1}{#2}
+% }
+
+\tikzset{
+    scorestar/.style={
+        draw,
+        star,
+        star~points=5,
+        star~point~ratio=2.25,
+        inner~sep=1.3pt,
+        anchor=outer~point~3,
+    },
+    scorestarempty/.style={
+        scorestar,
+        fill=none,
+    },
+    scorestarfill/.style={
+        scorestar,
+        fill=accentcolor,
+    },
+}
+% #1: Amount of stars to be filled
+% #2: Max amount of stars
+\DeclareDocumentCommand{\starrating}{ m m }
+{
+    \begin{tikzpicture}[baseline]
+        \fp_step_inline:nnnn {1} {1} {#2}{
+            % first, draw the empty stars as a background to potentially be filled
+            \node[scorestarempty] (star##1) at (##1*1.75ex, 0) {};
+            % Check if the current step is smaller than the amount of stars to be filled. To account for partially filled stars, we check instead if the current step is smaler than the amount of stars to be filled plus 1, so partially filled stars are also counted.
+            \fp_compare:nT {##1<(#1+1)} {
+                % Check if The remainder of stars to be filled is smaller than 0. If So, ##1 will be greater than #1 since we "overshoot".
+                \fp_compare:nTF {##1 > #1} {
+                    %
+                    \begin{scope}
+                        \clip
+                        ($(star##1.outer~point~3)!(star##1.outer~point~2)!(star##1.outer~point~4)$)
+                        rectangle
+                        ($(star##1.outer~point~2 |- star##1.outer~point~1)!\fp_eval:n {#1 - (##1-1)}!(star##1.outer~point~1 -| star##1.outer~point~5)$);
+                        \node[scorestarfill] (starcol##1) at (##1*1.75ex, 0) {};
+                    \end{scope}
+                } {
+                    \node[scorestarfill] (starcol##1) at (##1*1.75ex, 0) {};
+                }
+            }
+        }
+    \end{tikzpicture}%
+}
+
+\DeclareDocumentCommand{\frage}{m}{
+    \begin{grayInfoBox}
+        \fatsf{Frage:}~#1
+    \end{grayInfoBox}
+}
+\DeclareDocumentCommand{\antwort}{m}{
+    \begin{grayInfoBox}
+        \fatsf{Antwort:}~#1
+    \end{grayInfoBox}
+}
