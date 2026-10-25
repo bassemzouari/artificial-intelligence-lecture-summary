@@ -1,105 +1,24 @@
-# Artificial Intelligence Lecture Summary
+# Artificial Intelligence — Lecture Notes
 
-Comprehensive LaTeX-based lecture summary for a university-level
-Artificial Intelligence course covering intelligent agents,
-search algorithms, heuristics, optimization, adversarial search,
-and core AI methodologies.
+German-language notes from *Einführung in die Künstliche Intelligenz* (winter semester 2023/24), written in LaTeX.
 
-> Language: German 🇩🇪
+The notes cover how intelligent agents are modeled and how search is used to solve problems. They include uninformed and heuristic search, local optimization, adversarial search, and constraint satisfaction. They are a personal reference for selected course topics, not a replacement for the lecture.
 
-The project focuses on structured technical documentation,
-problem-solving strategies, rational agents, informed search,
-and modern artificial intelligence concepts.
+[Read the PDF](output/summary.pdf)
 
----
+## Contents
 
-## Topics Covered
+The sources are split into five chapters: an introduction to AI, agent systems, uninformed and informed search, local and adversarial search, and constraint satisfaction problems.
 
-- Introduction to Artificial Intelligence
-- Turing Test & Chinese Room Argument
-- Rational Agents
-- AI Environments
-- Agent Architectures
-- Reflex & Model-Based Agents
-- Goal-Based & Utility-Based Agents
-- Learning Agents
-- Search Problems
-- State Space Representation
-- Tree Search Algorithms
-- Breadth-First Search (BFS)
-- Depth-First Search (DFS)
-- Uniform-Cost Search (UCS)
-- Iterative Deepening Search (IDS)
-- Heuristics
-- Greedy Best-First Search
-- A* Search
-- Admissible & Consistent Heuristics
-- Graph Search
-- Optimization Problems
-- Local Search Algorithms
-- Hill Climbing
-- Beam Search
-- Simulated Annealing
-- Adversarial Search
-- Minimax Algorithm
-- Alpha-Beta Pruning
-- Constraint Satisfaction Problems (CSPs)
+## Files
 
----
+- [Compiled PDF](output/summary.pdf)
+- `main.tex`: document entry point
+- `chapters/`: LaTeX source for individual topics
+- `styles/`: local document class and style files
 
-## Build Instructions
+## Notes on building and reuse
 
-Requirements:
-- A LaTeX installation (e.g. MikTeX or TeX Live)
-- Installation of the [TU Template](https://github.com/tudace/tuda_latex_templates) and the required plugins
-- Installation of Pygments (for code blocks), e.g. via `pip install Pygments`
+The sources use a customized TU Darmstadt LaTeX template (see `styles/`) and require a suitable TeX setup. Packages used by the template may require shell escape and Pygments. The PDF above is provided for reading without a local build.
 
-First, the folder structure must of course be downloaded, for example using `git clone`.  
-Afterwards, the summary/document must be compiled with the `--shell-escape` flag.  
-
-If you are using VS Code with LaTeX Workshop, you can modify the `settings.json` by appending the following:
-
-```jsonc
-"latex-workshop.latex.tools": [
-    {
-        "name": "latexmk",
-        "command": "latexmk",
-        "args": [
-            "--shell-escape",
-            "-synctex=1",
-            "-interaction=nonstopmode",
-            "-file-line-error",
-            "-lualatex", // alternatively: "-pdf", etc.
-            "-outdir=%OUTDIR%",
-            "%DOC%"
-        ]
-    },
-],
-```
-
----
-
-## Goals of the Project
-
-- Create a structured and maintainable AI reference
-- Summarize classical artificial intelligence concepts
-- Document search and optimization algorithms
-- Explain heuristics and rational decision-making
-- Improve technical documentation and LaTeX workflow skills
-
----
-
-## Disclaimer
-
-This document was independently written for educational purposes.
-It is intended as a personal lecture summary and study reference.
-
-Some topics may be based on university lecture material and publicly
-known artificial intelligence concepts. All rights to original course
-content remain with their respective owners.
-
----
-
-## License
-
-This repository is licensed under the MIT License.
+These are personal study notes, not official teaching materials. The repository's [MIT license](LICENSE) does not override the rights or licenses of third-party figures, course materials, or template components.
